@@ -1,70 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import '../styles/LoginPage.css';
+import { useTheme } from '../context/ThemeContext';
+import ColorPicker from '../components/ColorPicker';
 
-const LoginForm = () => {
-  const [userId, setUserId] = useState('');
-  const [name, setName] = useState('');
-  const [account, setAccount] = useState('');
+const LoginPage = () => {
+  const { theme } = useTheme();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`歡迎，${name}！你的用戶 ID 是：${userId}，帳號是：${account}`);
-  };
+  useEffect(() => {
+    document.documentElement.style.setProperty('--background-color', theme);
+  }, [theme]);
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-  <h2>登入 RedLightGuard</h2>
-  <input
-    type="text"
-    placeholder="用戶 ID"
-    value={userId}
-    onChange={(e) => setUserId(e.target.value)}
-    style={styles.input}
-  />
-  <input
-    type="text"
-    placeholder="名字"
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-    style={styles.input}
-  />
-  <input
-    type="text"
-    placeholder="帳號"
-    value={account}
-    onChange={(e) => setAccount(e.target.value)}
-    style={styles.input}
-  />
-  <button type="submit" style={styles.button}>登入</button>
-</form>
+    <>
+      <div className="login-container">
+        <div className="login-card">
+          <h2 className="login-title">登入 RedLightGuard</h2>
+          <form className="login-form">
+            <input type="text" placeholder="用戶 ID" className="input-field" />
+            <input type="text" placeholder="名字" className="input-field" />
+            <input type="text" placeholder="帳號" className="input-field" />
+            <button type="submit" className="login-button">登入</button>
+          </form>
+        </div>
+      </div>
+      <ColorPicker />
+    </>
   );
 };
 
-const styles = {
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '250px',
-    margin: 'auto',
-    padding: '20px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '10px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  },
-  input: {
-    padding: '0.5rem',
-    margin: '0.5rem 0',
-    borderRadius: '8px',
-    border: '1px solid #ddd',
-  },
-  button: {
-    padding: '0.5rem',
-    borderRadius: '8px',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer',
-    marginTop: '10px',
-  },
-};
-
-export default LoginForm;
+export default LoginPage;

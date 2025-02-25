@@ -1,24 +1,18 @@
 import React, { createContext, useState, useContext } from 'react';
+import { colors } from '../styles/colors';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const colors = {
-    pink: '#f2e1e6',
-    was: '#d3c4b7',
-    green: '#c8d5c1',
-    blue: '#b0c4de',
-    yellow: '#f3eac2',
-    purple: '#d7c5e0',
-    gray: '#d1d1d1',
+  const [theme, setTheme] = useState(colors.background);
+
+  const changeTheme = (color) => {
+    setTheme(color);
+    document.documentElement.style.setProperty('--background-color', color);
   };
 
-  const [themeColor, setThemeColor] = useState(colors.pink);
-
-  const changeTheme = (color) => setThemeColor(color);
-
   return (
-    <ThemeContext.Provider value={{ themeColor, changeTheme, colors }}>
+    <ThemeContext.Provider value={{ theme, changeTheme }}>
       {children}
     </ThemeContext.Provider>
   );

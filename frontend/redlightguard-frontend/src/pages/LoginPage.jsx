@@ -1,18 +1,31 @@
 import React, { useEffect } from 'react';
+import '../styles/LoginPage.css';
 import { useTheme } from '../context/ThemeContext';
+import ColorPicker from '../components/ColorPicker';
 
 const LoginPage = () => {
-  const { themeColor } = useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    document.body.style.backgroundColor = themeColor;  // 背景根據主題顏色變化！
-  }, [themeColor]);
+    document.documentElement.style.setProperty('--background-color', theme); // 背景變色
+    document.documentElement.style.setProperty('--button-color', theme);     // 按鈕同步主題顏色！
+  }, [theme]);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '100px' }}>
-      <h1>RedLightGuard 🚦</h1>
-      <p>這是登入頁面！</p>
-    </div>
+    <>
+      <div className="login-container">
+        <div className="login-card">
+          <h2 className="login-title">登入 RedLightGuard</h2>
+          <form className="login-form">
+            <input type="text" placeholder="用戶 ID" className="input-field" />
+            <input type="text" placeholder="名字" className="input-field" />
+            <input type="text" placeholder="帳號" className="input-field" />
+            <button type="submit" className="login-button">登入</button>
+          </form>
+        </div>
+      </div>
+      <ColorPicker />
+    </>
   );
 };
 
