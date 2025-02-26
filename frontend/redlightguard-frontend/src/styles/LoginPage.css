@@ -1,9 +1,6 @@
 :root {
   --background-color: linear-gradient(135deg, #F2E7E8, #EAD1D4); /* 柔和漸層 */
-}
-
-:root {
-  --background-color: linear-gradient(135deg, #F2E7E8, #EAD1D4); /* 柔和漸層 */
+  --button-color: #b07c7c; /* 預設主題色 */
 }
 
 html, body, #root {
@@ -18,38 +15,24 @@ html, body, #root {
   overflow-x: hidden;
 }
 
-
-
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  background: var(--background-color);
-  background-size: cover;
-  background-repeat: no-repeat;
-  transition: background 0.5s ease;
-  overflow-x: hidden;
-}
-
-/* LoginPage.css */
+/* ===== Login Page 樣式 ===== */
 
 .login-container {
   display: flex;
-  justify-content: center; /* 水平置中 */
-  align-items: center;     /* 垂直置中 */
+  justify-content: center;  /* 水平置中 */
+  align-items: center;      /* 垂直置中 */
   height: 100vh;
-  background: var(--background-color);
 }
 
 .login-card {
   background: rgba(255, 255, 255, 0.9);
   padding: 30px 40px;
   border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* 柔和陰影 */
-  text-align: center;
   width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* ✅ 只保留柔和黑色陰影 */
 }
+
 
 .login-title {
   font-size: 1.8rem;
@@ -58,33 +41,49 @@ html, body, #root {
 }
 
 .login-form {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 15px;  /* 保持輸入框與按鈕間距 */
 }
 
+/* ===== 輸入框樣式 ===== */
 .input-field {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;  /* 確保 padding 不影響寬度 */
+  padding: 10px 15px;
   font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+.input-field:focus {
+  border-color: var(--button-color, #b07c7c);  /* 使用主題色 */
+  box-shadow: 0 0 10px rgba(176, 124, 124, 0.4); /* 柔和粉色微光 ✨ */
+  transform: scale(1.02);  /* 輕微放大 */
+}
+
+/* ===== 登入按鈕樣式 ===== */
 .login-button {
+  width: 100%;
   padding: 12px;
   border-radius: 10px;
-  background: var(--button-color); /* 使用 CSS 變數控制按鈕顏色！ */
-  color: white;
+  background: var(--button-color);  /* 主題色背景 */
+  color: #ffffff;
   font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  border: none; /* 去除黑框！ */
-  transition: all 0.3s ease;
+  border: none;  /* 去除預設邊框 */
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .login-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.05);  /* 滑鼠懸停輕微放大 */
 }
 
 .login-button:active {
-  transform: scale(0.97);
+  transform: scale(0.97);  /* 點擊時輕微縮小 */
 }

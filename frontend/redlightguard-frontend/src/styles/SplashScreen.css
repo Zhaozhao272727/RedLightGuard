@@ -1,0 +1,27 @@
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 垂直置中 */
+  align-items: center;     /* 水平置中 */
+  height: 100vh;           /* 滿版高度 */
+  width: 100vw;            /* 滿版寬度 */
+  background: var(--background-color, #f3e7e9); /* 背景使用主題色 */
+  overflow: hidden;        /* 避免動畫溢出 */
+}
+
+.star {
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, #f8dcdc, #e6b8b8); /* 星星顏色 */
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255, 223, 186, 0.8);
+  margin-bottom: 20px;    /* 與標題間距 */
+}
+
+.title {
+  font-size: 2rem;
+  color: #b07c7c;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  text-align: center;     /* 文字置中 */
+}

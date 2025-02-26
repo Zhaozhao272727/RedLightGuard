@@ -1,0 +1,19 @@
+.input-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .input-field:focus {
+    border-color: var(--button-color, #b07c7c);  /* 使用主題色 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1), 0 0 15px var(--button-color); /* 主題色柔光 */
+    transform: scale(1.02);  /* 輕微放大 */
+  }
+  
+  

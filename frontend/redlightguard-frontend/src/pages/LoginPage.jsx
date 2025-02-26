@@ -1,15 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../styles/LoginPage.css';
 import { useTheme } from '../context/ThemeContext';
-import ColorPicker from '../components/ColorPicker';
+import ColorPicker from "../components/ColorPicker";  // ✅ 沒大括號
+import RippleButton from "../components/RippleButton";
+import InputField from "../components/InputField";
 
 const LoginPage = () => {
   const { theme } = useTheme();
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--background-color', theme); // 背景變色
-    document.documentElement.style.setProperty('--button-color', theme);     // 按鈕同步主題顏色！
-  }, [theme]);
 
   return (
     <>
@@ -17,10 +14,10 @@ const LoginPage = () => {
         <div className="login-card">
           <h2 className="login-title">登入 RedLightGuard</h2>
           <form className="login-form">
-            <input type="text" placeholder="用戶 ID" className="input-field" />
-            <input type="text" placeholder="名字" className="input-field" />
-            <input type="text" placeholder="帳號" className="input-field" />
-            <button type="submit" className="login-button">登入</button>
+            <InputField placeholder="用戶 ID" />
+            <InputField placeholder="名字" />
+            <InputField placeholder="帳號" />
+            <RippleButton type="button">登入</RippleButton>
           </form>
         </div>
       </div>
@@ -29,4 +26,5 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default LoginPage;  // ✅ 改成這個才對！
+

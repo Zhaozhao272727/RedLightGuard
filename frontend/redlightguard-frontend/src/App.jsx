@@ -1,11 +1,15 @@
-import React from 'react';
-import { ThemeProvider } from './context/ThemeContext';
-import LoginPage from './pages/LoginPage';
+import { ThemeProvider } from "./context/ThemeContext";
+import { Routes, Route } from "react-router-dom";
+import SplashScreen from "./components/SplashScreen";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
   return (
     <ThemeProvider>
-      <LoginPage />  {/* ✅ 小球會跟著 LoginPage 出現 */}
+      <Routes>
+        <Route path="/" element={<SplashScreen />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
     </ThemeProvider>
   );
 }
