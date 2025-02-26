@@ -1,0 +1,34 @@
+.background-stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+    isolation: isolate; /* ⭐ 隔離背景混色 */
+  }
+  
+  .star {
+    position: absolute;
+    background-color: white; /* 純白星星 */
+    border-radius: 50%;
+    opacity: 0.6;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    animation: twinkle infinite ease-in-out, float infinite ease-in-out;
+  }
+  
+  /* ✨ 閃爍效果 */
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  
+  /* 🌠 隨機微移動 (星星慢慢漂浮) */
+  @keyframes float {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(var(--move-x), var(--move-y)); }
+    100% { transform: translate(0, 0); }
+  }
+  

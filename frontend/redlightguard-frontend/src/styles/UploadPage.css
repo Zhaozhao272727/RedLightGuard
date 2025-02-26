@@ -1,0 +1,58 @@
+.upload-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  background: var(--background-color, linear-gradient(135deg, #fdfcfb, #f5e4e1, #f2d2d2));
+  transition: background 0.5s ease;
+}
+
+.upload-card {
+  width: 100%;
+  max-width: 480px; /* ✅ 微調寬度，更接近你想要的效果 */
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 182, 193, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+.upload-card:hover {
+  box-shadow: 0 0 25px rgba(255, 182, 193, 0.6);
+}
+
+.main-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #a39090;
+  margin-bottom: 0.8rem;
+}
+
+.upload-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #b28b8b;
+  margin-bottom: 1.2rem;
+}
+
+.upload-button {
+  width: calc(100% - 20px); /* ✅ 讓按鈕寬度跟上方輸入框相同並預留間距 */
+  padding: 14px 0;
+  border-radius: 10px;
+  background: var(--button-color, #b07c7c);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 1rem; /* ✅ 與上方元素保持距離 */
+}
+
+.upload-button:hover {
+  transform: scale(1.05);
+}

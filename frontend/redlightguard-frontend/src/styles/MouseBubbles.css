@@ -1,0 +1,23 @@
+.mouse-bubble {
+    position: fixed;
+    width: 20px; /* ✅ 泡泡變大 */
+    height: 20px; /* ✅ 泡泡變大 */
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4); /* ✅ 偏白，透明度 0.4 */
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: bubble-fade 1s ease-out forwards;
+    z-index: 1000;
+  }
+  
+  @keyframes bubble-fade {
+    0% {
+      opacity: 0.6; /* ✅ 初始顯眼但不刺眼 */
+      transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(4); /* ✅ 更大擴散效果 */
+    }
+  }
+  

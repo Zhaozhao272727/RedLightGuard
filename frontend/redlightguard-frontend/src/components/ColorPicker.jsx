@@ -23,7 +23,7 @@ const ColorPicker = () => {
           key={index}
           className="color-ball"
           title={name}
-          style={{ background: color.button }}
+          style={{ background: color.background }} // 🌈 使用 colors 設定的漸變色
           onClick={() => changeTheme(color.background, color.button)}
         />
       ))}

@@ -1,24 +1,23 @@
 .color-picker-container {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 1000;
-  }
-  
-  .color-ball {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .color-ball:hover {
-    transform: scale(1.2);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+}
+
+.color-ball {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(255, 255, 255, 0.4); /* 立體感 */
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.color-ball:hover {
+  transform: scale(1.15); /* 滑過時放大 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 2px 6px rgba(255, 255, 255, 0.5); /* 更明顯亮光 */
+}

@@ -21,7 +21,10 @@ const getInitialTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(getInitialTheme);  // ✅ 使用修正版
+  const [theme, setTheme] = useState({
+    background: "linear-gradient(135deg, #F2E7E8, #E8C1C1)",
+    button: "#b07c7c",
+  });
 
   const changeTheme = (backgroundColor, buttonColor) => {
     const newTheme = { background: backgroundColor, button: buttonColor || backgroundColor };
@@ -36,7 +39,11 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     document.documentElement.style.setProperty('--background-color', theme.background);
     document.documentElement.style.setProperty('--button-color', theme.button);
+  
+    // 🚫 確保背景不會影響到星星
+    document.documentElement.style.setProperty('--star-color', 'white');
   }, [theme]);
+  
 
   return (
     <ThemeContext.Provider value={{ theme, changeTheme }}>
@@ -45,4 +52,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
+// ✅ 確保是這種匯出方式
 export const useTheme = () => useContext(ThemeContext);
