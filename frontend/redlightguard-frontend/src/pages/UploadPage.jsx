@@ -1,29 +1,14 @@
-import React, { useEffect } from "react";
-import { useTheme } from "../context/ThemeContext";
+import React from "react";
 import VideoUpload from "../components/VideoUpload";
-import ColorPicker from "../components/ColorPicker";
-import MouseBubbles from "../components/MouseBubbles";
-import "../styles/UploadPage.css";
+import ColorPicker from "../components/ColorPicker"; // 🎨 主題顏色小球
+import "../styles/UploadPage.css";                    // 📄 上傳頁面樣式
 
 const UploadPage = () => {
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--background-color', theme.background);
-  }, [theme]);
-
   return (
-    <>
-      <MouseBubbles />
-      <main className="upload-page">
-        <div className="upload-card">
-          <h1 className="main-title">🚦 RedLightGuard</h1>
-          <h2 className="upload-title">影片上傳區</h2>
-          <VideoUpload />
-        </div>
-        <ColorPicker />
-      </main>
-    </>
+    <div className="upload-page">
+      <ColorPicker /> {/* 🎨 主題顏色小球 */}
+      <VideoUpload /> {/* 📤 影片上傳元件 */}
+    </div>
   );
 };
 

@@ -1,50 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { useTheme } from "../context/ThemeContext";
-import RippleButton from "../components/RippleButton";
-import "../styles/VideoUpload.css";
+import React, { useState } from "react";
+import RippleButton from "./RippleButton";
+import "../styles/UploadPage.css";
 
 const VideoUpload = () => {
-  const { theme } = useTheme();
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [fileName, setFileName] = useState("未選擇任何檔案");
 
-  useEffect(() => {
-    document.documentElement.style.setProperty('--button-color', theme.button);
-  }, [theme]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) setUploadedFile(file);
+  const handleChooseFile = () => {
+    document.getElementById("file-input").click();
   };
 
-  const handleUpload = () => {
-    if (!uploadedFile) {
-      alert("請先選擇檔案！");
-      return;
-    }
-    alert(`已成功上傳影片：${uploadedFile.name}`);
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFileName(file ? file.name : "未選擇任何檔案");
   };
 
   return (
-    <div className="video-upload-container">
+    <div className="upload-card">
+      <h2 className="main-title">🚦 RedLightGuard</h2>
+      <h3 className="upload-title">影片上傳區</h3>
+
       <div className="file-upload-section">
-        <label htmlFor="file-upload" className="select-file-label">
-          📁 選擇檔案
-        </label>
+        <RippleButton className="choose-file-button" onClick={handleChooseFile}>
+          📂 選擇檔案
+        </RippleButton>
+
         <input
-          id="file-upload"
+          id="file-input"
           type="file"
           accept="video/*"
+          style={{ display: "none" }}
           onChange={handleFileChange}
-          className="file-input"
         />
-        <span className="file-name">
-          {uploadedFile ? uploadedFile.name : "未選擇任何檔案"}
-        </span>
+
+        <span className="file-name">{fileName}</span>
       </div>
 
-      <RippleButton className="upload-button" onClick={handleUpload}>
-        上傳影片
-      </RippleButton>
+      <RippleButton className="upload-button">上傳影片</RippleButton>
     </div>
   );
 };

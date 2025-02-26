@@ -1,58 +1,78 @@
 .upload-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 1rem;
-  background: var(--background-color, linear-gradient(135deg, #fdfcfb, #f5e4e1, #f2d2d2));
-  transition: background 0.5s ease;
-}
-
-.upload-card {
-  width: 100%;
-  max-width: 480px; /* ✅ 微調寬度，更接近你想要的效果 */
-  background: rgba(255, 255, 255, 0.95);
-  padding: 2rem;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(255, 182, 193, 0.4);
-  transition: box-shadow 0.3s ease;
-}
-
-.upload-card:hover {
-  box-shadow: 0 0 25px rgba(255, 182, 193, 0.6);
-}
-
-.main-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #a39090;
-  margin-bottom: 0.8rem;
-}
-
-.upload-title {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: #b28b8b;
-  margin-bottom: 1.2rem;
-}
-
-.upload-button {
-  width: calc(100% - 20px); /* ✅ 讓按鈕寬度跟上方輸入框相同並預留間距 */
-  padding: 14px 0;
-  border-radius: 10px;
-  background: var(--button-color, #b07c7c);
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  margin-top: 1rem; /* ✅ 與上方元素保持距離 */
-}
-
-.upload-button:hover {
-  transform: scale(1.05);
-}
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+    background: var(--background-color, linear-gradient(135deg, #fdfcfb, #f5e4e1, #f2d2d2));
+    transition: background 0.5s ease;
+  }
+  
+  /* 📦 上傳卡片 */
+  .upload-card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 20px; /* ✅ 圓角 */
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* ✅ 柔和陰影 */
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .upload-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* ✅ 滑過陰影加深 */
+  }
+  
+  /* 🚦 標題樣式 */
+  .main-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--button-color, #a39090); /* 主題色同步 */
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .upload-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #b28b8b;
+    margin-bottom: 1.2rem;
+  }
+  
+  /* 📂 檔案選擇區塊 */
+  .file-upload-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  
+  .choose-file-button {
+    width: 140px;
+  }
+  
+  .file-name {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 14px;
+    color: #555;
+    text-align: left;
+  }
+  
+  /* 📤 上傳影片按鈕 */
+  .upload-button {
+    width: 100%;
+    max-width: 480px;   /* 與卡片同寬 */
+    padding: 14px 0;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    border-radius: 10px;
+    display: block;
+  }
+  

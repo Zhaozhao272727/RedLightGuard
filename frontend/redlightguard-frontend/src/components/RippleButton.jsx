@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import "../styles/RippleButton.css";
 
-const RippleButton = ({ children, onClick, disabled = false }) => {
+const RippleButton = ({ children, onClick, disabled = false, className = "", style = {} }) => {
   const [ripples, setRipples] = useState([]);
   const { theme } = useTheme();
 
@@ -23,13 +23,14 @@ const RippleButton = ({ children, onClick, disabled = false }) => {
 
   return (
     <button
-        className="ripple-button"
-        onClick={(e) => {
-          createRipple(e);
-          onClick && onClick(e);
-         }}
+      className={`ripple-button ${className}`}  // ✅ 接收外部傳入的 className
+      style={style}                              // ✅ 支援外部自訂 style
+      onClick={(e) => {
+        createRipple(e);
+        onClick && onClick(e);
+      }}
+      disabled={disabled}
     >
-
       {children}
       {!disabled && (
         <div className="ripple-container">
