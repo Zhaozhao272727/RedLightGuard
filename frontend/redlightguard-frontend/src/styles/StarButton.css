@@ -1,0 +1,28 @@
+/* 🌟 小星星按鈕固定右下角 */
+.star-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* 🌟 Emoji 星星樣式 */
+.star-icon {
+  font-size: 4.5rem; /* 大小可調 */
+  opacity: 0.7; /* ✅ 調整透明度，數值可改 (0 ~ 1) */
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.9)); /* 純白光效果 */
+  transition: transform 0.5s ease, filter 0.3s ease, opacity 0.3s ease;
+  display: inline-block;
+}
+
+/* ✨ 懸停時旋轉 + 放大 + 強光 & 透明度恢復 */
+.star-button:hover .star-icon {
+  transform: rotate(360deg) scale(1.3);
+  filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1));
+  opacity: 1; /* 懸停時恢復不透明，讓星星更亮！ */
+}

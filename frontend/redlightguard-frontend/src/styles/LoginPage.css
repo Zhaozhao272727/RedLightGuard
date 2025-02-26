@@ -87,3 +87,21 @@ html, body, #root {
 .login-button:active {
   transform: scale(0.97);  /* 點擊時輕微縮小 */
 }
+
+/* 🚫 錯誤提示 */
+.error-message {
+  color: #e57373;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  text-align: left;
+  animation: shake 0.2s ease;
+}
+
+/* 🪐 抖動動畫 */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}

@@ -1,0 +1,31 @@
+.starry-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1; /* 在所有內容下方 */
+    pointer-events: none; /* 不影響點擊 */
+  }
+  
+  .star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.8); /* 白色光點 */
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8); /* 柔光效果 */
+    animation: twinkle 6s infinite ease-in-out, drift 10s infinite linear;
+  }
+  
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+  
+  @keyframes drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-20px); } /* 緩慢上升 */
+  }
+  

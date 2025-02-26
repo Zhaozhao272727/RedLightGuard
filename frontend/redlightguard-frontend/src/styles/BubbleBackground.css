@@ -1,0 +1,40 @@
+.bubble-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1; /* 在所有內容後面 */
+  }
+  
+  .bubble-background span {
+    position: absolute;
+    bottom: -80px;
+    background-color: rgba(255, 255, 255, 0.2); /* 柔和透明泡泡 */
+    border-radius: 50%;
+    pointer-events: none;
+    animation: rise linear infinite, float ease-in-out infinite;
+  }
+  
+  @keyframes rise {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-120vh); /* 往上飄出螢幕外 */
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(15px); /* 左右漂浮效果 */
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
