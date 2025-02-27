@@ -4,6 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import UploadPage from "./pages/UploadPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPage from "./pages/AdminPage";
+import ErrorLogs from "./pages/ErrorLogs";
 import UserDetail from "./pages/UserDetail"; // 🆕 新增用戶詳情頁
 import AnalysisPage from "./pages/AnalysisPage";
 import Navbar from "./components/Navbar"; // 🏠 導覽列
@@ -48,6 +49,7 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />     {/* 🗂️ 管理員頁 */}
         <Route path="/admin/user/:userId" element={<UserDetail />} /> {/* 🆕 用戶詳情頁 */}
         <Route path="/analysis" element={<AnalysisPage />} />  {/* 🆕 分析頁面 */}
+        <Route path="/error-logs" element={<ErrorLogs />} />
       </Routes>
     </>
   );
