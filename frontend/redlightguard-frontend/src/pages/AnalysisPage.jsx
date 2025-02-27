@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import "../styles/AnalysisPage.css"; // ✅ 確保正確引用 CSS
+import "../styles/AnalysisPage.css"; // ✅ 正確的 CSS
+import "../styles/ColorPicker.css";  // ✅ 確保變色小球的樣式載入
+import ColorPicker from "../components/ColorPicker"; // ✅ 引入變色小球組件
 
 const AnalysisPage = () => {
   const [analysisResults, setAnalysisResults] = useState([]);
@@ -15,7 +17,7 @@ const AnalysisPage = () => {
           url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
           status: "違規",
           violationSegments: ["00:15 - 00:30"],
-          model: "LSTM", // 預設選擇
+          model: "LSTM",
         },
         {
           id: 2,
@@ -23,32 +25,18 @@ const AnalysisPage = () => {
           url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
           status: "無違規",
           violationSegments: [],
-          model: "Transformer", // 預設選擇
+          model: "Transformer",
         },
       ]);
       setLoading(false);
     }, 2000);
   }, []);
 
-  const handleModelChange = (videoId, selectedModel) => {
-    setAnalysisResults((prevResults) =>
-      prevResults.map((video) =>
-        video.id === videoId ? { ...video, model: selectedModel } : video
-      )
-    );
-  };
-
-  const handleDownload = (videoUrl) => {
-    const link = document.createElement("a");
-    link.href = videoUrl;
-    link.download = "video.mp4"; // 可更改名稱
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="analysis-container">
+      {/* 🌟 變色小球 */}
+      <ColorPicker />
+      
       <h2>📊 影片分析結果</h2>
 
       {loading ? (
@@ -66,30 +54,15 @@ const AnalysisPage = () => {
               {/* 🔥 每個影片的模型選擇區 */}
               <div className="model-selection">
                 <label>
-                  <input
-                    type="radio"
-                    value="LSTM"
-                    checked={video.model === "LSTM"}
-                    onChange={() => handleModelChange(video.id, "LSTM")}
-                  />
+                  <input type="radio" value="LSTM" checked={video.model === "LSTM"} readOnly />
                   LSTM
                 </label>
                 <label>
-                  <input
-                    type="radio"
-                    value="Transformer"
-                    checked={video.model === "Transformer"}
-                    onChange={() => handleModelChange(video.id, "Transformer")}
-                  />
+                  <input type="radio" value="Transformer" checked={video.model === "Transformer"} readOnly />
                   Transformer
                 </label>
                 <label>
-                  <input
-                    type="radio"
-                    value="Custom"
-                    checked={video.model === "Custom"}
-                    onChange={() => handleModelChange(video.id, "Custom")}
-                  />
+                  <input type="radio" value="Custom" checked={video.model === "Custom"} readOnly />
                   自訂模型
                 </label>
               </div>
@@ -103,16 +76,12 @@ const AnalysisPage = () => {
                 )}
               </p>
 
+              {/* 🛠️ 違規時間段的按鈕（橫排） */}
               {video.status === "違規" && (
                 <div className="violation-actions">
                   <button className="seek-button">⏩ 00:15 - 00:30</button>
                   <button className="reanalyze-button">🔄 重新分析</button>
-                  <button
-                    className="download-button"
-                    onClick={() => handleDownload(video.url)}
-                  >
-                    ⬇ 下載
-                  </button>
+                  <button className="download-button">⬇ 下載</button>
                 </div>
               )}
             </li>

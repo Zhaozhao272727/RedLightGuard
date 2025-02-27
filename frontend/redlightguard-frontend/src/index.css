@@ -1,12 +1,14 @@
 /* index.css */
 html, body, #root {
-  height: 100%;
+  height: auto;  /* ✅ 允許內容增長 */
+  min-height: 100vh; /* ✅ 確保最小高度 */
   width: 100%;
   margin: 0;
   padding: 0;
-  background: var(--background-color, #F2E7E8); /* 使用變數，沒值則有預設 */
+  background: var(--background-color, #F2E7E8); /* 保持原設定 */
   background-size: cover;
   background-repeat: no-repeat;
   transition: background 0.5s ease;
-  overflow: hidden; /* 防止滾動與黑邊 */
+  overflow-x: hidden; /* ✅ 允許垂直滾動，禁止水平滾動 */
+  overflow-y: auto; /* ✅ 允許頁面垂直滾動 */
 }

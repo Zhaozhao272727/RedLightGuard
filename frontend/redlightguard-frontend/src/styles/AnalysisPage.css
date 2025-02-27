@@ -1,0 +1,155 @@
+/* 🌟 主要容器，讓分析結果區置中 */
+.analysis-container {
+    max-width: 900px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+/* 🖤 「影片分析結果」標題維持黑色 */
+h2 {
+    color: black;
+}
+
+/* 🌟 影片列表 */
+.video-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* 🌟 影片卡片（置中 + 陰影） */
+.video-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px auto;
+    text-align: center;
+    max-width: 700px; /* 讓影片卡片置中 */
+}
+
+/* 🌟 讓模型選擇區真正置中 */
+.model-selection {
+    display: flex;
+    justify-content: center; /* ✅ 水平置中 */
+    align-items: center;      /* ✅ 讓按鈕內容垂直對齊 */
+    gap: 12px;
+    padding: 10px;
+    border-radius: 20px;
+    background: #f0f0f5;
+    margin-top: 15px;
+    width: fit-content;       /* ✅ 讓選擇區自適應大小 */
+    max-width: 400px;         /* ✅ 限制最大寬度，防止過寬 */
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease;
+}
+
+.model-selection:hover {
+    background: #e8e8f0;
+}
+
+/* 🌟 讓按鈕更有互動感 */
+.model-selection label {
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center; /* ✅ 讓文字垂直對齊 */
+    justify-content: center;
+    min-width: 100px; /* ✅ 讓每個按鈕寬度一致 */
+    text-align: center;
+}
+
+/* 🔘 隱藏原始 radio 按鈕 */
+.model-selection input {
+    display: none;
+}
+
+/* ✅ 選中時高亮，並讓模型按鈕受小球變色影響 */
+.model-selection label:has(input:checked) {
+    background: var(--button-color, #007bff);
+    color: white;
+    border: 2px solid var(--button-hover, #0056b3);
+    box-shadow: 0px 2px 6px rgba(0, 123, 255, 0.5);
+}
+
+/* 🖱️ 滑鼠懸停時 */
+.model-selection label:hover {
+    background: #dde5ff;
+    border: 2px solid var(--button-hover, #b0c4ff);
+}
+
+/* 🌟 影片分析結果文字 */
+.result {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* 🔴 違規 & 🟢 無違規 樣式 */
+.violation {
+    color: red;
+    font-weight: bold;
+}
+.no-violation {
+    color: green;
+    font-weight: bold;
+}
+
+/* 🌟 讓違規時間段的按鈕變成橫排 */
+.violation-actions {
+    display: flex;
+    justify-content: center; /* ✅ 讓它們在同一排置中 */
+    align-items: center;      /* ✅ 讓所有按鈕垂直對齊 */
+    gap: 12px;                /* ✅ 按鈕之間的間距 */
+    margin-top: 12px;
+}
+
+/* 🌟 統一按鈕樣式 */
+.violation-actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 14px;
+    min-width: 120px;  /* ✅ 固定按鈕寬度，讓它們對齊 */
+    height: 42px;      /* ✅ 確保所有按鈕高度一致 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box; /* ✅ 避免 padding 影響大小 */
+}
+
+/* 🎯 快進按鈕（藍色），受變色小球影響 */
+.seek-button {
+    background: var(--button-color, #007bff);
+}
+.seek-button:hover {
+    background: var(--button-hover, #0056b3);
+}
+
+/* 🟠 重新分析按鈕（橙色），受變色小球影響 */
+.reanalyze-button {
+    background: var(--button-color, #ff9800);
+}
+.reanalyze-button:hover {
+    background: var(--button-hover, #e68900);
+}
+
+/* 🟢 下載按鈕（綠色），受變色小球影響 */
+.download-button {
+    background: var(--button-color, #28a745);
+}
+.download-button:hover {
+    background: var(--button-hover, #1e7e34);
+}
