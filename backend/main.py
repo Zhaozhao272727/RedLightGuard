@@ -21,6 +21,10 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 # ✅ 3. 初始化 FastAPI（這行要在 Middleware 之前）
 app = FastAPI()
 
+@app.get("/ping")
+def health_check():
+    return {"message": "pong"}
+
 # ✅ 4. 設定 CORS（這行要放在 `app = FastAPI()` 之後，且要在所有路由之前）
 app.add_middleware(
     CORSMiddleware,
