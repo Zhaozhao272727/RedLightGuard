@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_BASE_URL } from "../config"; // ✅ 確保 API_BASE_URL 有被正確導入
 import "../styles/UserDetail.css";
 
 const UserDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // 取得用戶 ID
+  const { userId } = useParams(); // ✅ 確保 `useParams()` 取得的 key 與路由一致
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [originalUserData, setOriginalUserData] = useState(null);
@@ -12,27 +13,30 @@ const UserDetail = () => {
 
   useEffect(() => {
     console.log("正在載入用戶資料...");
-    
+
     // 🚀 取得用戶資料
-    fetch(`${API_BASE_URL}/users/${id}`)
-      .then(response => response.json())
+    fetch(`${API_BASE_URL}/users/${userId}`)
+      .then(response => {
+        if (!response.ok) throw new Error(`❌ 無法獲取用戶資料 (錯誤碼 ${response.status})`);
+        return response.json();
+      })
       .then(data => {
         setUserData(data);
         setOriginalUserData(data);
       })
-      .catch(error => console.error("❌ 無法獲取用戶資料:", error));
+      .catch(error => console.error(error));
 
     // 🎥 取得該用戶上傳的影片
-    fetch("${API_BASE_URL}/videos")
+    fetch(`${API_BASE_URL}/videos`)
       .then(response => response.json())
       .then(data => {
         if (data.data && data.data.data) {
-          const videos = data.data.data.filter(video => video.user_id === id);
+          const videos = data.data.data.filter(video => video.user_id === userId);
           setUserVideos(videos);
         }
       })
       .catch(error => console.error("❌ 無法獲取影片資料:", error));
-  }, [id]);
+  }, [userId]);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -43,7 +47,7 @@ const UserDetail = () => {
   };
 
   const handleCancel = () => {
-    setUserData(originalUserData); // 恢復原始資料
+    setUserData(originalUserData);
     setIsEditing(false);
   };
 
@@ -65,8 +69,8 @@ const UserDetail = () => {
       if (!response.ok) throw new Error("更新失敗");
 
       const updatedUser = await response.json();
-      setUserData(updatedUser);
-      setOriginalUserData(updatedUser);
+      setUserData(updatedUser.data);
+      setOriginalUserData(updatedUser.data);
       setIsEditing(false);
       alert("✅ 更新成功！");
     } catch (error) {
@@ -80,7 +84,7 @@ const UserDetail = () => {
   return (
     <div className="user-detail-container">
       <h2 className="user-detail-title">
-        <i className="user-icon">👤</i> 用戶詳情 - <span>{userData.account}</span>
+        <i className="user-icon">👤</i> 用戶詳情 - <span>{userData.username}</span>
       </h2>
 
       <form className="user-detail-form" onSubmit={handleSave}>
@@ -91,7 +95,12 @@ const UserDetail = () => {
 
         <div className="user-detail-row">
           <label className="user-detail-label">帳號</label>
-          <input className="user-detail-input" type="text" name="account" value={userData.account} onChange={handleChange} disabled={!isEditing} />
+          <input className="user-detail-input" type="text" name="username" value={userData.username} onChange={handleChange} disabled={!isEditing} />
+        </div>
+
+        <div className="user-detail-row">
+          <label className="user-detail-label">Email</label>
+          <input className="user-detail-input" type="email" name="email" value={userData.email} onChange={handleChange} disabled={!isEditing} />
         </div>
 
         <div className="user-detail-row">
@@ -101,7 +110,7 @@ const UserDetail = () => {
 
         <div className="user-detail-row">
           <label className="user-detail-label">註冊日期（不可修改）</label>
-          <input className="user-detail-input" type="text" value={userData.registerDate} disabled />
+          <input className="user-detail-input" type="text" value={userData.created_at} disabled />
         </div>
 
         <div className="user-detail-buttons">

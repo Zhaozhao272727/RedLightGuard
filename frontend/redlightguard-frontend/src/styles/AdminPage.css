@@ -251,3 +251,16 @@ html, body {
 .back-btn:hover {
   background: #7f8c8d;
 }
+
+/* 📂 用戶列表專用 */
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 用戶列表標題顏色 */
+.admin-section h2 {
+  color: var(--button-color, #b07c7c);
+}
