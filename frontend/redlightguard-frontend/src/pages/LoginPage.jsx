@@ -47,21 +47,45 @@ const LoginPage = () => {
     });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    
     const hasErrors = Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim());
-
     if (hasErrors) {
       alert('請修正錯誤並填寫完整！🚫');
       return;
     }
-
-    triggerStarRain(); // 🌠 星星灑落
-
-    setTimeout(() => {
-      navigate('/upload'); // ✅ 登入後跳轉
-    }, 1500); // 延遲顯示動畫
+  
+    try {
+      const response = await fetch("https://redlightguard.onrender.com/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: formData.userId,
+          account: formData.account,
+          password: formData.password
+        })
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || "登入失敗，請檢查帳號密碼！");
+      }
+  
+      alert("✅ 登入成功！");
+      triggerStarRain(); // 🌠 星星動畫
+  
+      setTimeout(() => {
+        navigate("/upload"); // ✅ 成功後跳轉
+      }, 1500);
+      
+    } catch (error) {
+      console.error("❌ 登入失敗：", error);
+      alert(error.message);
+    }
   };
+  
 
   return (
     <>
