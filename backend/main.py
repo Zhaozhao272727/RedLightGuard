@@ -52,51 +52,61 @@ class LoginRequest(BaseModel):
     account: str
     password: str
 
-# ✅ 7. 註冊 API
+# ✅ 7. 註冊 API（使用 Supabase Auth，但帳號是 `account` 而不是 `email`）
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
-        # 🔍 檢查帳號是否已存在
+        # 🔍 先檢查帳號是否已存在
         existing_account = supabase.table("users").select("*").eq("account", user.account).execute()
         if existing_account.data:
             raise HTTPException(status_code=400, detail="❌ 帳號已被使用！")
 
-        # 🔍 檢查用戶名是否已存在
+        # 🔍 先檢查用戶名是否已存在
         existing_username = supabase.table("users").select("*").eq("username", user.username).execute()
         if existing_username.data:
             raise HTTPException(status_code=400, detail="❌ 用戶名已被使用！")
 
-        # 🆕 產生 UUID
+        # 🆕 產生 UUID（這是 Supabase 需要的 `id`）
         user_id = str(uuid.uuid4())
 
-        # 📝 新增用戶
-        new_user = {
+        # 🔐 使用 Supabase Auth 註冊（帳號是 `account`，但 Supabase Auth 需要 `email`）
+        response = supabase.auth.sign_up({
+            "email": f"{user.account}@placeholder.com",  # ⚠️ 這只是 Supabase 需要的格式，實際上不會用
+            "password": user.password
+        })
+
+        if "error" in response:
+            raise HTTPException(status_code=400, detail="❌ 註冊失敗: " + response["error"]["message"])
+
+        # 📝 新增用戶到 `users` 表
+        supabase.table("users").insert({
             "id": user_id,
             "account": user.account,
             "username": user.username,
-            "password": user.password,  # 🚨 這裡未加密（未來建議用 bcrypt）
-            "created_at": datetime.utcnow().isoformat(),
-        }
-        supabase.table("users").insert(new_user).execute()
+            "created_at": datetime.utcnow().isoformat()
+        }).execute()
 
         return {"message": "✅ 註冊成功！", "user_id": user_id}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
 
-# ✅ 8. 登入 API
+# ✅ 8. 登入 API（使用 Supabase Auth 驗證）
 @app.post("/login")
 def login(request: LoginRequest):
     try:
-        # 🔍 查詢帳號
+        # 🔍 用 `account` 查詢對應的 `email`
         response = supabase.table("users").select("*").eq("account", request.account).execute()
         if not response.data:
             raise HTTPException(status_code=401, detail="❌ 帳號不存在！")
 
         user = response.data[0]
-        
-        # 🔐 檢查密碼
-        if user["password"] != request.password:
+        email_placeholder = f"{user['account']}@placeholder.com"
+
+        # 🔐 使用 Supabase Auth 驗證密碼
+        auth_response = supabase.auth.sign_in_with_password({"email": email_placeholder, "password": request.password})
+
+        if "error" in auth_response:
             raise HTTPException(status_code=401, detail="❌ 密碼錯誤！")
 
         return {"message": "✅ 登入成功！", "account": user["account"], "username": user["username"]}
