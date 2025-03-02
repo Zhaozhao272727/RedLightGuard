@@ -1,9 +1,9 @@
-// components/Navbar.jsx
+// components/NavBar.jsx
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../styles/Navbar.css';
+import '../styles/NavBar.css';
 
-const Navbar = () => {
+const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,4 +17,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavBar;

@@ -8,7 +8,7 @@ import AdminPage from "./pages/AdminPage";
 import ErrorLogs from "./pages/ErrorLogs";
 import UserDetail from "./pages/UserDetail"; // 🆕 用戶詳情頁
 import AnalysisPage from "./pages/AnalysisPage";
-import Navbar from "./components/Navbar"; // 🏠 導覽列
+import NavBar from "./components/Navbar"; // 🏠 導覽列
 import StarButton from "./components/StarButton"; // ⭐️ 小星星按鈕
 import MouseRipple from "./components/MouseRipple";
 import BackgroundStars from "./components/BackgroundStars";
@@ -26,7 +26,7 @@ function App() {
   return (
     <>
       {/* 🏠 導覽列（除了動畫頁外都顯示） */}
-      {!hideNavbarOnPages.includes(location.pathname) && <Navbar />}
+      {!hideNavbarOnPages.includes(location.pathname) && <NavBar />}
 
       {/* 🌟 小星星按鈕（由 `App.jsx` 控制，不用手動設定特定頁面） */}
       {showStarButton && <StarButton />}
