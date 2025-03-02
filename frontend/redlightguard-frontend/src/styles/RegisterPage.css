@@ -1,0 +1,107 @@
+:root {
+    --background-color: linear-gradient(135deg, #F2E7E8, #EAD1D4); /* 柔和漸層 */
+    --button-color: #b07c7c; /* 預設主題色 */
+  }
+  
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--background-color);
+    background-size: cover;
+    background-repeat: no-repeat;
+    transition: background 0.5s ease;
+    overflow-x: hidden;
+  }
+  
+  /* ===== 註冊頁樣式 ===== */
+  
+  .register-container {
+    display: flex;
+    justify-content: center;  /* 水平置中 */
+    align-items: center;      /* 垂直置中 */
+    height: 100vh;
+  }
+  
+  .register-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px 40px;
+    border-radius: 20px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* ✅ 柔和黑色陰影 */
+  }
+  
+  .register-title {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .register-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;  /* 保持輸入框與按鈕間距 */
+  }
+  
+  /* ===== 輸入框樣式 ===== */
+  .register-form input {
+    width: 100%;
+    box-sizing: border-box;  /* 確保 padding 不影響寬度 */
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .register-form input:focus {
+    border-color: var(--button-color, #b07c7c);  /* 使用主題色 */
+    box-shadow: 0 0 10px rgba(176, 124, 124, 0.4); /* 柔和粉色微光 ✨ */
+    transform: scale(1.02);  /* 輕微放大 */
+  }
+  
+  /* ===== 註冊按鈕樣式 ===== */
+  .register-button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--button-color);  /* 主題色背景 */
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;  /* 去除預設邊框 */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .register-button:hover {
+    transform: scale(1.05);  /* 滑鼠懸停輕微放大 */
+  }
+  
+  .register-button:active {
+    transform: scale(0.97);  /* 點擊時輕微縮小 */
+  }
+  
+  /* 🚫 錯誤提示 */
+  .error-message {
+    color: #e57373;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    text-align: left;
+    animation: shake 0.2s ease;
+  }
+  
+  /* 🪐 抖動動畫 */
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+  }
+  

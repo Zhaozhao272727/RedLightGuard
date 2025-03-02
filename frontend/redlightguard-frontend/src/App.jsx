@@ -1,11 +1,12 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage"; // 🆕 新增註冊頁面
 import UploadPage from "./pages/UploadPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminPage from "./pages/AdminPage";
 import ErrorLogs from "./pages/ErrorLogs";
-import UserDetail from "./pages/UserDetail"; // 🆕 新增用戶詳情頁
+import UserDetail from "./pages/UserDetail"; // 🆕 用戶詳情頁
 import AnalysisPage from "./pages/AnalysisPage";
 import Navbar from "./components/Navbar"; // 🏠 導覽列
 import StarButton from "./components/StarButton"; // ⭐️ 小星星按鈕
@@ -44,6 +45,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SplashScreen />} />       {/* 🌠 動畫頁 */}
         <Route path="/login" element={<LoginPage />} />     {/* 🔑 登入頁 */}
+        <Route path="/register" element={<RegisterPage />} /> {/* 🆕 註冊頁 */}
         <Route path="/upload" element={<UploadPage />} />   {/* 📤 上傳頁 */}
         <Route path="/admin-login" element={<AdminLoginPage />} /> {/* 🛡️ 管理員登入頁 */}
         <Route path="/admin" element={<AdminPage />} />     {/* 🗂️ 管理員頁 */}

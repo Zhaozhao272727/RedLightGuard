@@ -105,3 +105,23 @@ html, body, #root {
   75% { transform: translateX(-4px); }
   100% { transform: translateX(0); }
 }
+
+.register-link {
+  margin-top: 15px;
+  font-size: 16px;  /* 🔥 讓字稍微大一點 */
+  font-weight: 500; /* 🔥 讓字有點粗度 */
+  color: #6c757d;   /* 🔥 改成柔和的灰色 */
+  text-align: center;
+}
+
+.register-link span {
+  color: #a55eea;  /* 🔥 改成淡紫色，跟主題搭配 */
+  font-weight: 600; /* 🔥 讓「註冊」更顯眼 */
+  cursor: pointer;
+  text-decoration: none; /* 🔥 移除底線 */
+  transition: color 0.3s ease-in-out;
+}
+
+.register-link span:hover {
+  color: #6c5ce7; /* 🔥 滑鼠懸停時顏色變深 */
+}

@@ -1,0 +1,83 @@
+.user-profile-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 🆕 帳號資訊卡片 */
+.account-info-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; /* 讓影片區塊往下推 */
+}
+
+.account-info-card input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.update-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--button-color, #b07c7c);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.update-btn:hover {
+    background: var(--button-hover-color, #8a5f5f);
+}
+
+/* 🎬 影片區塊 */
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.video-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.video-player {
+    width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+}
+
+.download-btn, .back-btn {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background: var(--button-color, #b07c7c);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.download-btn:hover, .back-btn:hover {
+    background: var(--button-hover-color, #8a5f5f);
+}

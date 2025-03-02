@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/LoginPage.css';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
@@ -104,6 +104,9 @@ const LoginPage = () => {
             </div>
             <button type="submit" className="login-button">登入</button>
           </form>
+
+          {/* 註冊連結 */}
+          <p className="register-link">還沒有帳號？ <span onClick={() => navigate('/register')}>註冊</span></p>
         </div>
       </div>
       <ColorPicker />
