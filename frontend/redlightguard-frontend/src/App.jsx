@@ -17,15 +17,15 @@ import MouseBubbles from "./components/MouseBubbles";
 function App() {
   const location = useLocation(); // 📍 獲取當前路徑
 
-  // 🛡️ 導覽列不顯示於動畫頁
-  const hideNavbarOnPages = ["/"];
+  // 🛡️ 導覽列不顯示於動畫頁 & 登入頁
+  const hideNavbarOnPages = ["/", "/login"];
 
   // 🌟 小星星按鈕（除了動畫頁，其他頁面都顯示）
-  const showStarButton = location.pathname !== "/";
+  const showStarButton = !hideNavbarOnPages.includes(location.pathname);
 
   return (
     <>
-      {/* 🏠 導覽列（除了動畫頁外都顯示） */}
+      {/* 🏠 導覽列（不顯示於動畫頁 & 登入頁） */}
       {!hideNavbarOnPages.includes(location.pathname) && <NavBar />}
 
       {/* 🌟 小星星按鈕（由 `App.jsx` 控制，不用手動設定特定頁面） */}
@@ -34,7 +34,7 @@ function App() {
       {/* 🖱️ 背景動畫切換 */}
       {location.pathname === "/upload" ? (
         <MouseBubbles /> // 🫧 上傳頁顯示滑鼠泡泡
-      ) : location.pathname !== "/" ? (
+      ) : !hideNavbarOnPages.includes(location.pathname) ? (
         <>
           <BackgroundStars /> {/* ✨ 其他頁面顯示星星背景 */}
           <MouseRipple />     {/* 🖱️ 滑鼠漣漪效果 */}
