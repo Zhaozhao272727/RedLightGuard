@@ -1,105 +1,192 @@
+/* 🎯 **整個頁面美觀置中** */
 .user-profile-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    text-align: center;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 650px;  /* ✅ 統一寬度 */
+    margin: 80px auto; /* ✅ 增加頂部距離 */
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    text-align: center; /* ✅ 讓標題置中 */
 }
 
-/* 🆕 帳號資訊卡片 */
+/* 🏷️ **標題樣式** */
+.page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--button-color, #b07c7c);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* 🎯 **用戶資訊卡片** */
 .account-info-card {
     background: #f8f9fa;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px; /* 讓影片區塊往下推 */
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
 }
 
-.account-info-card input {
+/* 📝 **輸入框統一風格** */
+.input-field {
     width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 12px; /* ✅ 保持輸入框間距 */
 }
 
-.update-btn {
-    width: 100%;
-    padding: 10px;
+.input-field:focus {
+    border-color: var(--button-color, #b07c7c);
+    box-shadow: 0 0 8px rgba(176, 124, 124, 0.4);
+}
+
+/* 🔘 **按鈕區塊統一** */
+.user-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 20px; /* ✅ 跟密碼輸入框保持距離 */
+}
+
+/* 🖌 **通用按鈕樣式** */
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 150px;
     background: var(--button-color, #b07c7c);
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.3s ease;
 }
 
-.update-btn:hover {
+.btn:hover {
+    transform: scale(1.05);
     background: var(--button-hover-color, #8a5f5f);
 }
 
-/* 🎬 影片區塊 */
-.section-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 20px;
+/* ❌ **取消按鈕（紅色）** */
+.cancel-btn {
+    background: #d9534f;
 }
 
+.cancel-btn:hover {
+    background: #c9302c;
+}
+
+/* 🗑️ **刪除按鈕（紅色 + 二次確認）** */
+.delete-btn {
+    background: #d9534f;
+}
+
+.delete-btn:hover {
+    background: #c9302c;
+}
+
+/* 🎬 **影片列表** */
 .video-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+/* 🎥 **單個影片卡片** */
 .video-card {
     background: #f8f9fa;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 14px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* 🎬 **影片播放器** */
 .video-player {
     width: 100%;
-    max-height: 300px;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
-.download-btn, .back-btn {
+/* 🎯 **影片按鈕區塊** */
+.video-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
     margin-top: 10px;
-    padding: 10px 15px;
+}
+
+/* 🔘 **統一影片按鈕** */
+.action-btn {
+    padding: 10px 16px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 140px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* 📥 **下載按鈕（主題色）** */
+.download-btn {
     background: var(--button-color, #b07c7c);
     color: white;
+}
+
+.download-btn:hover {
+    background: #8a5f5f;
+}
+
+/* 🔄 **重新分析按鈕（黃色）** */
+.reanalyze-btn {
+    background: #f0ad4e;
+    color: white;
+}
+
+.reanalyze-btn:hover {
+    background: #ec971f;
+}
+
+/* 🗑️ **刪除按鈕** */
+.delete-btn {
+    background: #d9534f;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #c9302c;
+}
+
+/* 🔙 **返回按鈕** */
+.back-btn {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #6c757d;
+    color: white;
+    border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s ease;
 }
 
-.download-btn:hover, .back-btn:hover {
-    background: var(--button-hover-color, #8a5f5f);
+.back-btn:hover {
+    background: #5a6268;
 }
-
-/* ✨ 通用輸入框樣式 */
-.input-field {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    background-color: #ffffff;
-    outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-  }
-  
-  /* ✨ 聚焦時發光（與登入頁相同） */
-  .input-field:focus {
-    border-color: var(--button-color, #b07c7c);  /* ✅ 使用主題顏色 */
-    box-shadow: 0 0 10px rgba(176, 124, 124, 0.4); /* ✅ 柔和粉色微光 ✨ */
-    transform: scale(1.02);  /* ✅ 輕微放大 */
-  }
-
-  
