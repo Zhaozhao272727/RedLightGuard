@@ -9,17 +9,20 @@
   transition: background 0.5s ease;
 }
 
-/* 📦 上傳卡片 */
+/* 📦 確保上傳卡片置中，並且隨內容增長 */
 .upload-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   background: rgba(255, 255, 255, 0.95);
   padding: 2rem;
   border-radius: 20px;
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  margin-top: 1rem;
-  transition: box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* ✅ 確保內容都置中 */
+  justify-content: center;
+  margin-bottom: 2rem; /* ✅ 確保底部留空間，避免影片太多時擠壓 */
 }
 
 .upload-card:hover {
@@ -45,14 +48,59 @@
   margin-bottom: 1.2rem;
 }
 
+/* 🎥 影片列表 - ✅ **現在跟上傳卡片合併，不是額外一張卡片！** */
+.video-preview-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px; /* ✅ 讓內部間距更一致 */
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  background: transparent; /* ✅ 移除獨立的白色背景，讓它跟上傳卡片融合 */
+  padding: 0; /* ✅ 避免多餘的間距 */
+  margin-bottom: 1rem;
+}
+
+/* 🎬 單個影片區塊 */
+.video-item {
+  width: 100%;
+  max-width: 460px; /* ✅ 和 .upload-card 內部內容保持對齊 */
+  background: #fff; /* ✅ 讓影片預覽內部還是白色，但不會變成獨立卡片 */
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px; /* ✅ 影片之間有間距 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* 🎞️ 影片播放器 */
+.video-item video {
+  width: 100%;  /* ✅ 讓影片填滿容器 */
+  max-width: 100%; /* ✅ 限制影片最大寬度 */
+  height: auto; /* ✅ 保持原比例縮放 */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  object-fit: contain; /* ✅ 確保影片內容完整顯示，不會裁切 */
+  display: block;
+  margin: 0 auto; /* ✅ 水平置中 */
+}
+
+
 /* 📂 檔案選擇區塊 */
 .file-upload-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  width: 100%;
+  gap: 1rem;
+  margin-bottom: 10px;
 }
 
+/* 📂 選擇檔案按鈕 */
 .choose-file-button {
   display: flex;
   flex-direction: column;
@@ -62,59 +110,74 @@
   padding: 10px 15px;
   font-size: 16px;
   font-weight: bold;
-  line-height: 1.4;
   white-space: nowrap;
+  background: var(--button-color, #b07c7c);
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .choose-file-button span {
   display: block;
+  font-size: 0.85rem;
+  font-weight: normal;
+  margin-top: 2px;
 }
 
+.choose-file-button:hover {
+  transform: scale(1.05);
+}
+
+/* 📜 未選擇檔案，讓它在中間 */
 .file-name {
-  font-size: 14px;
-  font-weight: bold;
-  color: #555;
+  flex: 1;
   text-align: center;
-  margin-top: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  background: #fff;
+  padding: 8px 12px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  max-width: 90%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 📤 上傳影片按鈕 */
+/* 🚀 上傳影片按鈕 */
 .upload-button {
   width: 100%;
   padding: 14px 0;
   font-size: 1rem;
   font-weight: bold;
-  margin-top: 1rem;
   border-radius: 10px;
   display: block;
+  background: var(--button-color, #b07c7c);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-top: 10px;
 }
 
-/* 🎥 影片預覽 */
-.video-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 480px;
-  margin-bottom: 15px;
-  padding: 10px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.upload-button:hover {
+  transform: scale(1.05);
 }
 
-.video-item video {
-  width: 100%;
-  max-width: 480px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.upload-button:active {
+  transform: scale(0.97);
 }
-
-/* 🆕 進度條區塊 */
 .progress-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 480px; /* ✅ 讓它跟影片對齊 */
   margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* ✅ 讓內容置中 */
+  justify-content: center;
 }
 
 .progress-bar-container {
@@ -123,11 +186,12 @@
   background: #ddd;
   border-radius: 6px;
   overflow: hidden;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2); /* ✅ 讓進度條有立體感 */
 }
 
 .progress-bar {
   height: 100%;
-  background: var(--button-color, #4caf50);
+  background: var(--button-color, #4caf50); /* ✅ 讓進度條顏色跟按鈕一致 */
   transition: width 0.3s ease-in-out;
   border-radius: 6px;
 }
@@ -135,20 +199,7 @@
 .progress-text {
   font-size: 14px;
   font-weight: bold;
-  color: var(--button-color, #4caf50); /* ✅ 讓數字顏色跟進度條一致 */
+  color: var(--button-color, #4caf50);
   text-align: center;
-  margin-top: 5px; /* ✅ 讓數字顯示在進度條的下方 */
-}
-
-
-/* 🆕 刪除按鈕 */
-.delete-button {
-  width: 100%;
-  max-width: 150px;
-  margin: 10px auto 0;
-  background-color: #d9534f;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  text-align: center;
+  margin-top: 5px;
 }

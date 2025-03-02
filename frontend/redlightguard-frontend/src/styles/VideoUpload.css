@@ -1,10 +1,13 @@
+/* 🎥 影片外層區塊 */
 .video-upload-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center; /* ✅ 讓內容垂直居中 */
   width: 100%;
-  max-width: 500px; /* 控制寬度接近白色框 */
+  max-width: 500px;
+  gap: 1.5rem;
+  padding: 0;
 }
 
 /* 📁 選擇檔案區塊 */
@@ -12,14 +15,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 90%; /* 接近白色底框寬度 */
+  width: 100%;
   gap: 1rem;
+  padding: 10px; /* ✅ 讓內部不會太擠 */
+  border-radius: 8px; /* ✅ 統一圓角風格 */
 }
 
-.file-input {
-  display: none; /* 隱藏原始輸入框 */
-}
 
+/* 📁 選擇檔案按鈕 */
 .select-file-label {
   padding: 10px 16px;
   border-radius: 10px;
@@ -37,39 +40,36 @@
   transform: scale(1.05);
 }
 
+/* 📜 檔案名稱顯示 */
 .file-name {
-  flex: 1; /* 填滿剩餘空間 */
-  font-size: 14px;
-  color: #b28b8b;
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  background: #fff;
   padding: 10px 12px;
   border: 2px solid #ccc;
   border-radius: 8px;
-  background-color: #fff;
-  text-overflow: ellipsis;
+  max-width: 90%;
   overflow: hidden;
   white-space: nowrap;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  text-overflow: ellipsis;
 }
 
-/* 🚀 上傳影片按鈕 */
-.upload-button {
-  width: 90%; /* 接近白色底框但不完全填滿 */
-  padding: 14px 0;
+/* 🎥 影片播放器 */
+.video-item video {
+  width: 100%;  /* ✅ 讓影片自適應 */
+  max-width: 100%; /* ✅ 影片最大寬度不超過容器 */
   border-radius: 10px;
-  background: var(--button-color, #b07c7c);
-  color: white;
-  font-size: 3rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ⚠️ 影片大小限制 */
+.file-size-limit {
+  font-size: 1rem;
+  color: #d9534f;
   font-weight: bold;
-  border: none;
   text-align: center;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.upload-button:hover {
-  transform: scale(1.05);
-}
-
-.upload-button:active {
-  transform: scale(0.97);
+  margin-top: 4px;
 }
