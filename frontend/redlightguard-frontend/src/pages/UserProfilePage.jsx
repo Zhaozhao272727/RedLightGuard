@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import '../styles/UserProfilePage.css'; // ✨ 更改檔案名稱
+import ColorPicker from '../components/ColorPicker'; // 🎨 引入主題顏色小球
+import '../styles/UserProfilePage.css'; // ✨ 確保 CSS 正確引用
 import { useNavigate } from 'react-router-dom';
 
 const UserProfilePage = () => {
@@ -24,17 +25,20 @@ const UserProfilePage = () => {
 
     return (
         <div className="user-profile-container">
+            {/* 🎨 加入主題顏色小球 */}
+            <ColorPicker />
+
             {/* 🆕 用戶詳情卡片（顯示在最上方） */}
             <div className="account-info-card">
                 <h2>👤 用戶資訊</h2>
-                <p><strong>用戶名：</strong> {userInfo.username}</p>
-                <p><strong>電子郵件：</strong> {userInfo.email}</p>
+                <input type="text" className="input-field" placeholder="新用戶名" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
+<input type="email" className="input-field" placeholder="新電子郵件" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
                 <input type="text" placeholder="新用戶名" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
                 <input type="email" placeholder="新電子郵件" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
                 <button className="update-btn">更新帳號資訊</button>
                 
-                <input type="password" placeholder="舊密碼" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
-                <input type="password" placeholder="新密碼" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <input type="password" className="input-field" placeholder="舊密碼" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
+                <input type="password" className="input-field" placeholder="新密碼" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 <button className="update-btn">修改密碼</button>
             </div>
 

@@ -13,6 +13,7 @@ import StarButton from "./components/StarButton"; // ⭐️ 小星星按鈕
 import MouseRipple from "./components/MouseRipple";
 import BackgroundStars from "./components/BackgroundStars";
 import MouseBubbles from "./components/MouseBubbles";
+import UserProfilePage from "./pages/UserProfilePage"; // 🆕 用戶個人中心頁
 
 function App() {
   const location = useLocation(); // 📍 獲取當前路徑
@@ -52,6 +53,7 @@ function App() {
         <Route path="/admin/user/:userId" element={<UserDetail />} /> {/* 🆕 用戶詳情頁 */}
         <Route path="/analysis" element={<AnalysisPage />} />  {/* 🆕 分析頁面 */}
         <Route path="/error-logs" element={<ErrorLogs />} />
+        <Route path="/user/videos" element={<UserProfilePage />} />  {/* 🔥 修正這行 */}
       </Routes>
     </>
   );

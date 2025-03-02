@@ -81,3 +81,25 @@
 .download-btn:hover, .back-btn:hover {
     background: var(--button-hover-color, #8a5f5f);
 }
+
+/* ✨ 通用輸入框樣式 */
+.input-field {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* ✨ 聚焦時發光（與登入頁相同） */
+  .input-field:focus {
+    border-color: var(--button-color, #b07c7c);  /* ✅ 使用主題顏色 */
+    box-shadow: 0 0 10px rgba(176, 124, 124, 0.4); /* ✅ 柔和粉色微光 ✨ */
+    transform: scale(1.02);  /* ✅ 輕微放大 */
+  }
+
+  
