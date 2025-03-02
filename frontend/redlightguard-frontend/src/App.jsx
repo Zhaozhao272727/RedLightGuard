@@ -8,7 +8,7 @@ import AdminPage from "./pages/AdminPage";
 import ErrorLogs from "./pages/ErrorLogs";
 import UserDetail from "./pages/UserDetail"; // 🆕 用戶詳情頁
 import AnalysisPage from "./pages/AnalysisPage";
-import NavBar from "./components/Navbar"; // 🏠 導覽列
+import NavBar from "./components/NavBar"; // 🏠 導覽列
 import StarButton from "./components/StarButton"; // ⭐️ 小星星按鈕
 import MouseRipple from "./components/MouseRipple";
 import BackgroundStars from "./components/BackgroundStars";
