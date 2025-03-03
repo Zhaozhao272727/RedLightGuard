@@ -26,21 +26,21 @@ app = FastAPI()
 # ✅ 4. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://redlightguard.vercel.app",
-        "https://uptimerobot.com",
-        "https://*.vercel.app"  # 允許所有來自 Vercel 的請求
-    ],
+    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com", "https://dashboard.uptimerobot.com"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 # ✅ 5. 健康檢查 API
 @app.get("/ping")
 def health_check():
     return {"message": "pong"}
+
+@app.get("/")
+def home():
+    return {"message": "✅ RedLightGuard API is running!"}
+
 
 # ✅ 6. 用戶模型
 class UserCreate(BaseModel):
