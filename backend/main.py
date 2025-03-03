@@ -53,6 +53,7 @@ class LoginRequest(BaseModel):
     password: str
 
 # ✅ 7. 註冊 API（使用 Supabase Auth）
+# ✅ 確保 API 只傳送必要欄位
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
@@ -68,12 +69,11 @@ def register_user(user: UserCreate):
 
         user_id = auth_response.user.id  # 正確存取 user_id
 
-        # 儲存用戶資料到 `users` 資料表
+        # 🚀 **確保不再試圖插入 `account`**
         supabase.table("users").insert({
             "id": user_id,
             "username": user.username,  
             "email": user.email,  
-            "account": user.username,  # 將 `account` 欄位設為 `username`
             "created_at": datetime.utcnow().isoformat()
         }).execute()
 
@@ -81,6 +81,7 @@ def register_user(user: UserCreate):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
+
 
 
 
