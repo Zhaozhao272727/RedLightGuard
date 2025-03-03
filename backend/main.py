@@ -66,16 +66,22 @@ def register_user(user: UserCreate):
             "password": user.password
         })
 
-        # ✅ 修正這裡，不要用 dict 方式存取
-        if auth_response.user is None:
+        # ✅ 先 `print(auth_response)` 看回傳格式
+        print("🛠️ auth_response:", auth_response)
+
+        # ✅ 取 user_id（避免 KeyError）
+        user_data = auth_response.get("user")
+        if not user_data:
             raise HTTPException(status_code=400, detail=f"❌ 註冊失敗: {auth_response}")
 
-        user_id = auth_response.user.id  # ✅ 這樣正確取得 user_id
+        user_id = user_data.get("id")  # ✅ 修正 user_id 取法
 
-        # ✅ 將 username 存入 `users` 資料表
+        # ✅ 將用戶存入 `users` 資料表
         supabase.table("users").insert({
             "id": user_id,
+            "account": user.account,
             "username": user.username,
+            "email": user.email,  # ✅ 確保 email 也存入資料表
             "created_at": datetime.utcnow().isoformat()
         }).execute()
 
@@ -83,6 +89,7 @@ def register_user(user: UserCreate):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
+
 
 
 @app.post("/login")
