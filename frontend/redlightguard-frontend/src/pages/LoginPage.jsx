@@ -59,8 +59,8 @@ const LoginPage = () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
--               account: formData.account,  // ❌ 錯誤！API 預期的是 `email`
-+               email: formData.account,  // ✅ 這裡要傳 `email` 給後端，才能登入
+              account: formData.account,  // ❌ 錯誤！API 預期的是 `email`
+              email: formData.account,  // ✅ 這裡要傳 `email` 給後端，才能登入
                 password: formData.password,
             }),
         });
