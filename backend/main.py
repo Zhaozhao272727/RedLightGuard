@@ -60,21 +60,21 @@ class LoginRequest(BaseModel):
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
-        # 🔥 使用 Supabase Auth 註冊用戶
+        # ✅ Supabase Auth 註冊用戶
         auth_response = supabase.auth.sign_up({
             "email": user.email,  
             "password": user.password
         })
 
-        if "error" in auth_response:
-            raise HTTPException(status_code=400, detail=f"❌ 註冊失敗: {auth_response['error']['message']}")
+        # ✅ 修正這裡，不要用 dict 方式存取
+        if auth_response.user is None:
+            raise HTTPException(status_code=400, detail=f"❌ 註冊失敗: {auth_response}")
 
-        user_id = auth_response["user"]["id"]
+        user_id = auth_response.user.id  # ✅ 這樣正確取得 user_id
 
-        # 📝 在 `users` 資料表內存額外資訊（username）
+        # ✅ 將 username 存入 `users` 資料表
         supabase.table("users").insert({
             "id": user_id,
-            "account": user.account,  # ✅ 新增 account 欄位
             "username": user.username,
             "created_at": datetime.utcnow().isoformat()
         }).execute()
