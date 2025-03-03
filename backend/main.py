@@ -27,11 +27,12 @@ async def root():
 # ✅ 3. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://redlightguard.vercel.app"],  # 允許你的前端
+    allow_origins=["https://redlightguard.vercel.app", "https://*.vercel.app"],  
     allow_credentials=True,
-    allow_methods=["*"],  # 允許所有請求方法（GET, POST, DELETE...）
-    allow_headers=["*"],  # 允許所有請求標頭
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 
 # ✅ 4. 連接 Supabase
 try:
