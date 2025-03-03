@@ -9,7 +9,14 @@ const RegisterPage = () => {
     const { theme } = useTheme(); 
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({ account: '', email: '', password: '', confirmPassword: '' });
+    const [formData, setFormData] = useState({ 
+        account: '', 
+        email: '', 
+        username: '',  // ✅ 這裡加入 username
+        password: '', 
+        confirmPassword: '' 
+    });
+
     const [errors, setErrors] = useState({ account: '', email: '', password: '', confirmPassword: '' });
     const [loading, setLoading] = useState(false);
 
@@ -34,7 +41,11 @@ const RegisterPage = () => {
     const handleChange = (field) => (e) => {
         const value = e.target.value;
         setErrors({ ...errors, [field]: validateInput(field, value) });
-        setFormData({ ...formData, [field]: value });
+        setFormData({ 
+            ...formData, 
+            [field]: value,
+            ...(field === 'account' && { username: value }) // ✅ 當 account 變動時，自動同步 username
+        });
     };
 
     const handleRegister = async (e) => {
@@ -47,12 +58,13 @@ const RegisterPage = () => {
     
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {  // ✅ 如果用 Supabase 改成 `/auth/v1/signup`
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     account: formData.account,  
                     email: formData.email,  
+                    username: formData.username,  // ✅ 確保 username 正確傳送
                     password: formData.password
                 })
             });
@@ -73,7 +85,7 @@ const RegisterPage = () => {
             alert(error.message);
         }
     };
-    
+
     return (
         <>
             <div className="register-container">
