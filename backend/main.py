@@ -20,6 +20,10 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 # ✅ 2. 初始化 FastAPI
 app = FastAPI()
 
+@app.get("/")
+async def root():
+    return {"message": "✅ 伺服器運行正常！"}
+
 # ✅ 3. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
@@ -45,11 +49,12 @@ def health_check():
 # ✅ 6. 用戶模型
 class UserCreate(BaseModel):
     account: str
+    email: str  # ✅ 修正：新增 email
     username: str
     password: str
 
 class LoginRequest(BaseModel):
-    account: str
+    email: str  # ✅ 修正：使用 email
     password: str
 
 @app.post("/register")
@@ -69,6 +74,7 @@ def register_user(user: UserCreate):
         # 📝 在 `users` 資料表內存額外資訊（username）
         supabase.table("users").insert({
             "id": user_id,
+            "account": user.account,  # ✅ 新增 account 欄位
             "username": user.username,
             "created_at": datetime.utcnow().isoformat()
         }).execute()
@@ -84,7 +90,7 @@ def login(request: LoginRequest):
     try:
         # 🔥 向 Supabase Auth 驗證用戶
         auth_response = supabase.auth.sign_in_with_password({
-            "email": request.email,
+            "email": request.email,  # ✅ 修正為 email
             "password": request.password
         })
 
@@ -144,3 +150,4 @@ def get_videos():
 if __name__ == "__main__":
     print("⚡ FastAPI 啟動中...")
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+
