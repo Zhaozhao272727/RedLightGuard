@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
+import uvicorn
 
 # ✅ 1. 載入環境變數
 load_dotenv()
@@ -56,10 +57,10 @@ def register_user(user: UserCreate):
         })
 
         # 🔥 確保 `user` 存在
-        if "error" in auth_response or not auth_response.get("user"):
+        if auth_response.user is None:
             raise HTTPException(status_code=400, detail="❌ 註冊失敗: 無法取得用戶資訊")
 
-        user_id = auth_response["user"]["id"]
+        user_id = auth_response.user.id  # ✅ 正確存取 user_id
 
         # ✅ 儲存用戶到 `users` 資料表
         supabase.table("users").insert({
@@ -85,13 +86,13 @@ def login(request: LoginRequest):
         })
 
         # 🔥 確保 `session` & `user` 存在
-        if "error" in auth_response or not auth_response.get("session"):
+        if auth_response.session is None:
             raise HTTPException(status_code=401, detail="❌ 登入失敗: 無法驗證用戶")
 
         return {
             "message": "✅ 登入成功！",
-            "user_id": auth_response["user"]["id"],
-            "access_token": auth_response["session"]["access_token"]
+            "user_id": auth_response.user.id,
+            "access_token": auth_response.session.access_token
         }
 
     except Exception as e:
