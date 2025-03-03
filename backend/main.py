@@ -26,11 +26,16 @@ app = FastAPI()
 # ✅ 4. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com"],  
+    allow_origins=[
+        "https://redlightguard.vercel.app",
+        "https://uptimerobot.com",
+        "https://*.vercel.app"  # 允許所有來自 Vercel 的請求
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ✅ 5. 健康檢查 API
 @app.get("/ping")
@@ -140,3 +145,8 @@ def get_videos():
         return {"message": "✅ 成功取得影片列表！", "data": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
+
+# ✅ 11. UptimeRobot API
+@app.get("/ping", response_model=dict)
+def health_check():
+    return {"status": "ok", "message": "pong"}
