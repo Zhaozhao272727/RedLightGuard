@@ -26,7 +26,7 @@ app = FastAPI()
 # ✅ 4. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com", "https://dashboard.uptimerobot.com"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
