@@ -55,11 +55,12 @@ const LoginPage = () => {
 
     setLoading(true);
     try {
-        const response = await fetch(`${API_BASE_URL}/login`, {  // ✅ 修正 API 路徑
+        const response = await fetch(`${API_BASE_URL}/login`, {  
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                account: formData.account,  // ✅ 使用 `account` 而不是 `email`
+-               account: formData.account,  // ❌ 錯誤！API 預期的是 `email`
++               email: formData.account,  // ✅ 這裡要傳 `email` 給後端，才能登入
                 password: formData.password,
             }),
         });
@@ -68,14 +69,14 @@ const LoginPage = () => {
         setLoading(false);
 
         if (!response.ok) {
-            throw new Error(data.detail || '登入失敗，請檢查帳號密碼！');  // ✅ 改成 `detail`
+            throw new Error(data.detail || '登入失敗，請檢查帳號密碼！');
         }
 
         alert('✅ 登入成功！');
         triggerStarRain(); // 🌠 星星動畫
 
         setTimeout(() => {
-            navigate('/upload'); // ✅ 成功後跳轉
+            navigate('/upload'); 
         }, 1500);
     } catch (error) {
         setLoading(false);
@@ -83,6 +84,7 @@ const LoginPage = () => {
         alert(error.message);
     }
 };
+
 
 
   return (
