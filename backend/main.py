@@ -51,22 +51,24 @@ class LoginRequest(BaseModel):
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
+        # 使用 Supabase Auth 註冊用戶
         auth_response = supabase.auth.sign_up({
             "email": user.email,  
             "password": user.password
         })
 
-        # 🔥 確保 `user` 存在
+        # 確保 `user` 存在
         if auth_response.user is None:
             raise HTTPException(status_code=400, detail="❌ 註冊失敗: 無法取得用戶資訊")
 
-        user_id = auth_response.user.id  # ✅ 正確存取 user_id
+        user_id = auth_response.user.id  # 正確存取 user_id
 
-        # ✅ 儲存用戶到 `users` 資料表
+        # 儲存用戶資料到 `users` 資料表
         supabase.table("users").insert({
             "id": user_id,
             "username": user.username,  
             "email": user.email,  
+            "account": user.username,  # 將 `account` 欄位設為 `username`
             "created_at": datetime.utcnow().isoformat()
         }).execute()
 
@@ -74,6 +76,7 @@ def register_user(user: UserCreate):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
+
 
 
 # ✅ 8. 登入 API（使用 Supabase Auth）
