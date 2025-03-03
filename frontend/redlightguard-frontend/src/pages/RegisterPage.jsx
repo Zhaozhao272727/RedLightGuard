@@ -47,15 +47,14 @@ const RegisterPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/v1/signup`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("https://redlightguard.onrender.com/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    email: formData.email,
-                    password: formData.password,
-                    account: formData.account
-                }),
-            });
+                    account: formData.username,  // 確保這是對應的帳號欄位
+                    password: formData.password
+                })
+            })
 
             const data = await response.json();
             setLoading(false);
