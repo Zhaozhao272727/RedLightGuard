@@ -39,41 +39,41 @@ const RegisterPage = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-
+    
         if (Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim())) {
             alert('請修正錯誤並填寫完整！🚫');
             return;
         }
-
+    
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
+            const response = await fetch(`${API_BASE_URL}/register`, {  // ✅ 如果用 Supabase 改成 `/auth/v1/signup`
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    account: formData.account,  // ✅ 修正這裡，原本是錯的
+                    account: formData.account,  
                     email: formData.email,  
                     password: formData.password
                 })
             });
-
+    
             const data = await response.json();
             setLoading(false);
-
+    
             if (!response.ok) {
                 throw new Error(data.detail || data.message || '註冊失敗！請檢查資料');
             }
-
+    
             alert('✅ 註冊成功！請確認 Email');
             navigate('/login'); 
-
+    
         } catch (error) {
             setLoading(false);
             console.error('❌ 註冊失敗：', error);
             alert(error.message);
         }
     };
-
+    
     return (
         <>
             <div className="register-container">

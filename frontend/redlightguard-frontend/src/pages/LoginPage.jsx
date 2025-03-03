@@ -49,40 +49,41 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim())) {
-      alert('請修正錯誤並填寫完整！🚫');
-      return;
+        alert('請修正錯誤並填寫完整！🚫');
+        return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/v1/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.account, // ✅ 改用 Supabase 的 email 登入
-          password: formData.password,
-        }),
-      });
+        const response = await fetch(`${API_BASE_URL}/login`, {  // ✅ 修正 API 路徑
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                account: formData.account,  // ✅ 使用 `account` 而不是 `email`
+                password: formData.password,
+            }),
+        });
 
-      const data = await response.json();
-      setLoading(false);
+        const data = await response.json();
+        setLoading(false);
 
-      if (!response.ok) {
-        throw new Error(data.error || '登入失敗，請檢查帳號密碼！');
-      }
+        if (!response.ok) {
+            throw new Error(data.detail || '登入失敗，請檢查帳號密碼！');  // ✅ 改成 `detail`
+        }
 
-      alert('✅ 登入成功！');
-      triggerStarRain(); // 🌠 星星動畫
+        alert('✅ 登入成功！');
+        triggerStarRain(); // 🌠 星星動畫
 
-      setTimeout(() => {
-        navigate('/upload'); // ✅ 成功後跳轉
-      }, 1500);
+        setTimeout(() => {
+            navigate('/upload'); // ✅ 成功後跳轉
+        }, 1500);
     } catch (error) {
-      setLoading(false);
-      console.error('❌ 登入失敗：', error);
-      alert(error.message);
+        setLoading(false);
+        console.error('❌ 登入失敗：', error);
+        alert(error.message);
     }
-  };
+};
+
 
   return (
     <>
