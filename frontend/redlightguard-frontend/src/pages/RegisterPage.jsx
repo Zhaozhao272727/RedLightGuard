@@ -47,20 +47,21 @@ const RegisterPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch("https://redlightguard.onrender.com/register", {
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    account: formData.username,  // 確保這是對應的帳號欄位
+                    account: formData.account,  // ✅ 修正這裡，原本是錯的
+                    email: formData.email,  
                     password: formData.password
                 })
-            })
+            });
 
             const data = await response.json();
             setLoading(false);
 
             if (!response.ok) {
-                throw new Error(data.error || '註冊失敗！請檢查資料');
+                throw new Error(data.detail || data.message || '註冊失敗！請檢查資料');
             }
 
             alert('✅ 註冊成功！請確認 Email');
