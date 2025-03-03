@@ -4,37 +4,35 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import ColorPicker from '../components/ColorPicker';
 import confetti from 'canvas-confetti'; // 🎉 星星灑落動畫
+import API_BASE_URL from '../config'; // ✅ 確保使用 API_BASE_URL
 
 const LoginPage = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ userId: '', account: '', password: '' });
-  const [errors, setErrors] = useState({ userId: '', account: '', password: '' });
+  const [formData, setFormData] = useState({ account: '', password: '' });
+  const [errors, setErrors] = useState({ account: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--background-color', theme);
   }, [theme]);
 
   const validateInput = (field, value) => {
-    const regex = /^[a-zA-Z0-9_]*$/; // ✅ 僅允許英數字與底線
-
+    const regex = /^[a-zA-Z0-9_@.]*$/; // ✅ 允許英數字、底線、@、點（支援 email）
     if (!regex.test(value)) {
-      return '只能輸入英數字和底線 🚫';
+      return '只能輸入英數字、底線、@ 和點 🚫';
     }
-
     if (field === 'password' && value.length < 6) {
       return '密碼需至少 6 碼 🔒';
     }
-
     return '';
   };
 
   const handleChange = (field) => (e) => {
     const value = e.target.value;
-    const errorMsg = validateInput(field, value);
+    setErrors({ ...errors, [field]: validateInput(field, value) });
     setFormData({ ...formData, [field]: value });
-    setErrors({ ...errors, [field]: errorMsg });
   };
 
   const triggerStarRain = () => {
@@ -49,43 +47,42 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    const hasErrors = Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim());
-    if (hasErrors) {
+
+    if (Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim())) {
       alert('請修正錯誤並填寫完整！🚫');
       return;
     }
-  
+
+    setLoading(true);
     try {
-      const response = await fetch("https://redlightguard.onrender.com/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch(`${API_BASE_URL}/auth/v1/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: formData.userId,
-          account: formData.account,
-          password: formData.password
-        })
+          email: formData.account, // ✅ 改用 Supabase 的 email 登入
+          password: formData.password,
+        }),
       });
-  
+
       const data = await response.json();
-  
+      setLoading(false);
+
       if (!response.ok) {
-        throw new Error(data.error || "登入失敗，請檢查帳號密碼！");
+        throw new Error(data.error || '登入失敗，請檢查帳號密碼！');
       }
-  
-      alert("✅ 登入成功！");
+
+      alert('✅ 登入成功！');
       triggerStarRain(); // 🌠 星星動畫
-  
+
       setTimeout(() => {
-        navigate("/upload"); // ✅ 成功後跳轉
+        navigate('/upload'); // ✅ 成功後跳轉
       }, 1500);
-      
     } catch (error) {
-      console.error("❌ 登入失敗：", error);
+      setLoading(false);
+      console.error('❌ 登入失敗：', error);
       alert(error.message);
     }
   };
-  
 
   return (
     <>
@@ -96,18 +93,7 @@ const LoginPage = () => {
             <div className="input-group">
               <input
                 type="text"
-                placeholder="用戶 ID"
-                value={formData.userId}
-                onChange={handleChange('userId')}
-                className="input-field"
-                required
-              />
-              {errors.userId && <p className="error-message">{errors.userId}</p>}
-            </div>
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="帳號"
+                placeholder="帳號（Email）"
                 value={formData.account}
                 onChange={handleChange('account')}
                 className="input-field"
@@ -126,11 +112,15 @@ const LoginPage = () => {
               />
               {errors.password && <p className="error-message">{errors.password}</p>}
             </div>
-            <button type="submit" className="login-button">登入</button>
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? '登入中...' : '登入'}
+            </button>
           </form>
 
           {/* 註冊連結 */}
-          <p className="register-link">還沒有帳號？ <span onClick={() => navigate('/register')}>註冊</span></p>
+          <p className="register-link">
+            還沒有帳號？ <span onClick={() => navigate('/register')}>註冊</span>
+          </p>
         </div>
       </div>
       <ColorPicker />
