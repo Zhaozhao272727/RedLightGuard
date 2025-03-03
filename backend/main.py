@@ -27,11 +27,12 @@ async def root():
 # ✅ 3. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://redlightguard.vercel.app", "https://*.vercel.app"],  
+    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com"],  # ✅ 加上 UptimeRobot
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # ✅ 4. 連接 Supabase
@@ -154,3 +155,6 @@ if __name__ == "__main__":
     print("⚡ FastAPI 啟動中...")
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
 
+@app.api_route("/ping", methods=["GET", "HEAD"])
+def health_check():
+    return {"message": "pong"}
