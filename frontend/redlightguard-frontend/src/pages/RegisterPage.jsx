@@ -62,10 +62,9 @@ const RegisterPage = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    account: formData.account,  
-                    email: formData.email,  
-                    username: formData.username,  // ✅ 確保 username 正確傳送
-                    password: formData.password
+                    username: account,  // 改 `account` 為 `username`
+                    email: email,
+                    password: password,
                 })
             });
     
