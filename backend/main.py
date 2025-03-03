@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
-import uvicorn
 
 # ✅ 1. 載入環境變數
 load_dotenv()
@@ -17,61 +16,50 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("❌ Supabase 環境變數未正確載入！")
 
-# ✅ 2. 初始化 FastAPI
+# ✅ 2. 連接 Supabase
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ✅ 3. 初始化 FastAPI
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    return {"message": "✅ 伺服器運行正常！"}
-
-# ✅ 3. 設定 CORS
+# ✅ 4. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com"],  # ✅ 加上 UptimeRobot
+    allow_origins=["https://redlightguard.vercel.app", "https://uptimerobot.com"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-
-# ✅ 4. 連接 Supabase
-try:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    print("✅ Supabase 連線成功！")
-except Exception as e:
-    print(f"❌ Supabase 連線失敗: {e}")
-    raise RuntimeError("Supabase 連線錯誤")
-
-# ✅ 5. 測試 API
+# ✅ 5. 健康檢查 API
 @app.get("/ping")
 def health_check():
     return {"message": "pong"}
 
 # ✅ 6. 用戶模型
 class UserCreate(BaseModel):
-    account: str
-    email: str  # ✅ 修正：新增 email
+    email: str  
     username: str
     password: str
 
 class LoginRequest(BaseModel):
-    email: str  # ✅ 修正：使用 email
+    email: str  
     password: str
 
+# ✅ 7. 註冊 API（使用 Supabase Auth）
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
-        # ✅ 正確的 Supabase 註冊方式
         auth_response = supabase.auth.sign_up({
             "email": user.email,  
             "password": user.password
         })
 
-        if not auth_response.user:  # 🔥 確保 `user` 存在
+        # 🔥 確保 `user` 存在
+        if "error" in auth_response or not auth_response.get("user"):
             raise HTTPException(status_code=400, detail="❌ 註冊失敗: 無法取得用戶資訊")
 
-        user_id = auth_response.user.id  # ✅ 正確取得 user_id
+        user_id = auth_response["user"]["id"]
 
         # ✅ 儲存用戶到 `users` 資料表
         supabase.table("users").insert({
@@ -87,19 +75,18 @@ def register_user(user: UserCreate):
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
 
 
-
-
+# ✅ 8. 登入 API（使用 Supabase Auth）
 @app.post("/login")
 def login(request: LoginRequest):
     try:
-        # 🔥 向 Supabase Auth 驗證用戶
         auth_response = supabase.auth.sign_in_with_password({
-            "email": request.email,  # ✅ 修正為 email
+            "email": request.email,  
             "password": request.password
         })
 
-        if "error" in auth_response:
-            raise HTTPException(status_code=401, detail=f"❌ 登入失敗: {auth_response['error']['message']}")
+        # 🔥 確保 `session` & `user` 存在
+        if "error" in auth_response or not auth_response.get("session"):
+            raise HTTPException(status_code=401, detail="❌ 登入失敗: 無法驗證用戶")
 
         return {
             "message": "✅ 登入成功！",
@@ -115,7 +102,7 @@ def login(request: LoginRequest):
 @app.get("/users")
 def get_users():
     try:
-        response = supabase.table("users").select("id, account, username, created_at").execute()
+        response = supabase.table("users").select("id, username, email, created_at").execute()
         return {"message": "✅ 成功取得用戶列表！", "data": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得用戶列表失敗: {str(e)}")
@@ -149,12 +136,3 @@ def get_videos():
         return {"message": "✅ 成功取得影片列表！", "data": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
-
-# ✅ 11. 啟動 FastAPI
-if __name__ == "__main__":
-    print("⚡ FastAPI 啟動中...")
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
-
-@app.api_route("/ping", methods=["GET", "HEAD"])
-def health_check():
-    return {"message": "pong"}
