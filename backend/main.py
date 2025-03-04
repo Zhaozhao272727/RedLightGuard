@@ -147,7 +147,3 @@ def get_videos():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
 
-# ✅ 11. UptimeRobot API
-@app.get("/ping", response_model=dict)
-def health_check():
-    return {"status": "ok", "message": "pong"}
