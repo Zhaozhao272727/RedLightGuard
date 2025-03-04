@@ -15,14 +15,14 @@ const AnalysisPage = () => {
         url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119419/x2kwveo5g8j1wwwgkbty.mp4",
         downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119419/x2kwveo5g8j1wwwgkbty.mp4",
         status: "違規",
-        violationSegments: ["00:10 - 00:20"]
+        violationSegments: ["00:05 - 00:11"]
       },
       {
         name: "utomp3.com - 這紅綠燈會引誘人闖紅燈.mp4",
         url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
         downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
         status: "違規",
-        violationSegments: ["00:05 - 00:07", "01:00 - 01:05"]
+        violationSegments: ["00:10 - 00:15", "00:15 - 00:20"]
       },
       {
         name: "『療癒片』記得禮讓行人.mp4",
