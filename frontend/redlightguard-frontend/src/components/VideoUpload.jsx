@@ -61,7 +61,7 @@ const VideoUpload = () => {
       const file = selectedFiles[index];
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("user_id", userId);
+      formData.append("user_id", userId); // 確保 `user_id` 附加到 FormData
 
       try {
         const response = await fetch("https://redlightguard.onrender.com/upload", {
@@ -70,14 +70,17 @@ const VideoUpload = () => {
         });
 
         const result = await response.json();
+
         if (response.ok) {
           successCount++;
           setUploadProgress((prev) => ({ ...prev, [index]: 100 }));
         } else {
+          console.error("❌ 上傳失敗", result);
           setUploadProgress((prev) => ({ ...prev, [index]: "❌" }));
-          setToast({ message: `❌ 上傳失敗：${result.detail || "發生錯誤"}`, type: "error" });
+          setToast({ message: `❌ 上傳失敗：${result.detail || "未知錯誤"}`, type: "error" });
         }
       } catch (error) {
+        console.error("❌ 伺服器錯誤", error);
         setUploadProgress((prev) => ({ ...prev, [index]: "❌" }));
         setToast({ message: `❌ 伺服器錯誤，請稍後再試`, type: "error" });
       }
@@ -106,7 +109,7 @@ const VideoUpload = () => {
               {uploadProgress[index] !== undefined && (
                 <div className="progress-container">
                   <div className="progress-bar-container">
-                    <div className="progress-bar" style={{ width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%` }}></div>
+                    <div className="progress-bar" style={{ width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%`, backgroundColor: uploadProgress[index] === "❌" ? "red" : "green" }}></div>
                   </div>
                   <p className="progress-text">{uploadProgress[index] === "❌" ? "❌ 失敗" : `${uploadProgress[index]}%`}</p>
                 </div>

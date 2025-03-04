@@ -108,11 +108,26 @@ def login(request: LoginRequest):
         raise HTTPException(status_code=500, detail=f"❌ 伺服器錯誤: {str(e)}")
 
 # ✅ 10. S3 影片上傳 API
+
 @app.post("/upload")
-async def upload_video(file: UploadFile = File(...), user_id: str = "unknown"):
+async def upload_video(
+    file: UploadFile = File(...), 
+    user_id: str = Form(...)
+):
     try:
+        if file is None:
+            raise HTTPException(status_code=400, detail="❌ 沒有收到影片檔案，請重新選擇！")
+
         video_id = str(uuid.uuid4())  
         filename = f"{user_id}/{video_id}_{file.filename}"
+
+        # ✅ 上傳前檢查檔案內容
+        file_content = await file.read()
+        if not file_content:
+            raise HTTPException(status_code=400, detail="❌ 檔案為空，請重新選擇！")
+
+        # ✅ 重新打開 `file.file`，確保能夠上傳
+        file.file.seek(0)  # 重新設定檔案讀取位置
 
         # ✅ 上傳影片到 S3
         s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, filename, ExtraArgs={"ACL": "private"})
