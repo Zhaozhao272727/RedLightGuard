@@ -32,29 +32,32 @@ const VideoUpload = () => {
     // eslint-disable-next-line
   }, []);
 
-  const handleChooseFile = () => {
-    document.getElementById("file-input").click();
-  };
-
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-
+    
     for (let file of files) {
       if (file.size > 50 * 1024 * 1024) {
         setToast({ message: `🚨 ${file.name} 超過 50MB，請選擇較小的影片！`, type: "error" });
         return;
       }
+      
+      // ✅ 檢查是否已有相同檔名
+      if (selectedFiles.some((existingFile) => existingFile.name === file.name)) {
+        setToast({ message: `⚠️ ${file.name} 已選擇，請勿重複上傳！`, type: "warning" });
+        return;
+      }
     }
-
+  
     if (files.length + selectedFiles.length > 5) {
       setToast({ message: "⚠️ 最多只能上傳 5 部影片！", type: "error" });
       return;
     }
-
+  
     setSelectedFiles([...selectedFiles, ...files]);
     setVideoURLs([...videoURLs, ...files.map((file) => URL.createObjectURL(file))]);
     setUploaded(false);
   };
+  
 
   const handleDeleteVideo = (index) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
