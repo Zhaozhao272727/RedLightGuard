@@ -2,37 +2,73 @@ import React, { useState, useEffect } from "react";
 import "../styles/AnalysisPage.css"; // ✅ 正確的 CSS
 import "../styles/ColorPicker.css";  // ✅ 確保變色小球的樣式載入
 import ColorPicker from "../components/ColorPicker";
-import API_BASE_URL from "../config"; // ✅ 如需呼叫後端，可用此常數
+import API_BASE_URL from "../config"; // ✅ 引入 API_BASE_URL
 
 const AnalysisPage = () => {
   const [analysisResults, setAnalysisResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    // 🌟 可改為 fetch(`${API_BASE_URL}/analysis`) 或 /predict, 視後端實際接口而定
-    // 這裡保留你的 setTimeout 模擬結果
-    setTimeout(() => {
-      setAnalysisResults([
-        {
-          id: 1,
-          name: "video1.mp4",
-          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-          status: "違規",
-          violationSegments: ["00:15 - 00:30"],
-          model: "LSTM",
-        },
-        {
-          id: 2,
-          name: "video2.mp4",
-          url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-          status: "無違規",
-          violationSegments: [],
-          model: "Transformer",
-        },
-      ]);
-      setLoading(false);
-    }, 2000);
+    // 取得用戶 ID
+    const storedUserId = localStorage.getItem("user_id");
+    if (!storedUserId) {
+      alert("❌ 請先登入！");
+      window.location.href = "/login"; // 直接導回登入頁
+      return;
+    }
+    setUserId(storedUserId);
+
+    // 🚀 向後端請求用戶的影片分析結果
+    const fetchAnalysisResults = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/videos?user_id=${storedUserId}`);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.detail || "無法取得影片分析結果");
+
+        setAnalysisResults(data); // 設定結果
+      } catch (error) {
+        console.error("❌ 錯誤：", error);
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalysisResults();
   }, []);
+
+  // 🚀 重新分析影片（呼叫 `/videos/cut` API）
+  const handleReanalyze = async (video) => {
+    if (!userId) return;
+
+    const [start, end] = video.violationSegments[0].split(" - ").map((time) => {
+      const [min, sec] = time.split(":").map(Number);
+      return min * 60 + sec;
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/videos/cut`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: userId,
+          filename: video.name,
+          start: start,
+          end: end,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "裁剪失敗");
+
+      alert("✅ 重新分析成功！新影片：" + data.new_url);
+    } catch (error) {
+      console.error("❌ 重新分析錯誤：", error);
+      alert(error.message);
+    }
+  };
 
   return (
     <div className="analysis-container">
@@ -89,8 +125,12 @@ const AnalysisPage = () => {
                   {video.violationSegments.map((segment, idx) => (
                     <button key={idx} className="seek-button">⏩ {segment}</button>
                   ))}
-                  <button className="reanalyze-button">🔄 重新分析</button>
-                  <button className="download-button">⬇ 下載</button>
+                  <button className="reanalyze-button" onClick={() => handleReanalyze(video)}>
+                    🔄 重新分析
+                  </button>
+                  <a className="download-button" href={video.url} download>
+                    ⬇ 下載
+                  </a>
                 </div>
               )}
             </li>
