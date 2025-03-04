@@ -8,3 +8,5 @@ pydantic  # 資料驗證
 numpy  # 數據處理
 opencv-python  # 影片處理（如果會用）
 pillow  # 圖片處理（如果需要）
+boto3
+
