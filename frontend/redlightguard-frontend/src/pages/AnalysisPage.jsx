@@ -26,7 +26,7 @@ const AnalysisPage = () => {
       },
       {
         name: "『療癒片』記得禮讓行人.mp4",
-        url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
+        url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/nwljx7iljyq8addtdwx0.mp4",
         downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/nwljx7iljyq8addtdwx0.mp4",
         status: "無違規",
         violationSegments: []
