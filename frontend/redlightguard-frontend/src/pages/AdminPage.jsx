@@ -3,8 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import ColorPicker from "../components/ColorPicker";
 import "../styles/AdminPage.css";
 import API_BASE_URL from "../config"; // ✅ 統一改為預設匯入
-import { mockUsers, mockUploads } from "../mockData"; // ✅ 引入假資料
-
 
 // 🚀 狀態標籤
 const StatusTag = ({ status }) => {
@@ -32,7 +30,6 @@ const AdminPage = () => {
     document.documentElement.style.setProperty("--button-color", themeColor);
     document.documentElement.style.setProperty("--hover-glow-color", themeColor);
   }, [themeColor]);
-
 
   // 🚀 從 API 獲取用戶列表
   useEffect(() => {
