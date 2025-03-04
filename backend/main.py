@@ -194,3 +194,35 @@ def get_videos():
         return {"message": "✅ 成功取得影片列表！", "data": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
+
+# ✅ 12. 取得特定用戶的影片列表 API
+@app.get("/user/videos")
+def get_user_videos(user_id: str):
+    """
+    🚀 取得該用戶上傳的影片列表（從 S3 讀取）
+    """
+    try:
+        if not user_id:
+            raise HTTPException(status_code=400, detail="❌ 缺少 user_id！")
+
+        # 取得 S3 影片清單
+        s3 = boto3.client("s3")
+        prefix = f"{user_id}/"  # S3 裡的用戶資料夾
+        response = s3.list_objects_v2(Bucket=AWS_BUCKET_NAME, Prefix=prefix)
+
+        if "Contents" not in response:
+            return {"message": "⚠️ 該用戶沒有上傳影片！", "videos": []}
+
+        # 組成影片列表（轉換為前端可用的格式）
+        video_list = [
+            {
+                "name": obj["Key"].split("/")[-1],  # 取出檔名
+                "url": f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{obj['Key']}"
+            }
+            for obj in response["Contents"]
+        ]
+
+        return {"message": "✅ 成功取得影片列表！", "videos": video_list}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
