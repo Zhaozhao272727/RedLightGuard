@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 import boto3
@@ -27,7 +27,7 @@ app = FastAPI()
 # ✅ 4. 設定 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # 生產環境建議限定來源
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,10 +41,15 @@ s3_client = boto3.client(
     region_name=AWS_REGION
 )
 
-# ✅ 6. 健康檢查 API
+# ✅ 6. 健康檢查 API (UptimeRobot 會用 HEAD 或 GET)
 @app.get("/ping")
 def health_check():
     return {"message": "pong"}
+
+@app.head("/ping")
+def head_ping():
+    # 給 UptimeRobot 用，回傳 200 即可
+    return Response(status_code=200)
 
 @app.get("/")
 def home():
@@ -74,10 +79,11 @@ def register_user(user: UserCreate):
 
         user_id = auth_response.user.id
 
+        # 將使用者資訊存進資料表 (假設表名為 "users")
         supabase.table("users").insert({
             "id": user_id,
-            "username": user.username,  
-            "email": user.email,  
+            "username": user.username,
+            "email": user.email,
             "created_at": datetime.utcnow().isoformat()
         }).execute()
 
@@ -91,7 +97,7 @@ def register_user(user: UserCreate):
 def login(request: LoginRequest):
     try:
         auth_response = supabase.auth.sign_in_with_password({
-            "email": request.email,  
+            "email": request.email,
             "password": request.password
         })
 
@@ -108,26 +114,28 @@ def login(request: LoginRequest):
         raise HTTPException(status_code=500, detail=f"❌ 伺服器錯誤: {str(e)}")
 
 # ✅ 10. S3 影片上傳 API
-
 @app.post("/upload")
 async def upload_video(
     file: UploadFile = File(...), 
     user_id: str = Form(...)
 ):
     try:
+        if not user_id:
+            raise HTTPException(status_code=400, detail="❌ 缺少 user_id！請先登入或帶上 user_id")
+
         if file is None:
             raise HTTPException(status_code=400, detail="❌ 沒有收到影片檔案，請重新選擇！")
 
-        video_id = str(uuid.uuid4())  
+        video_id = str(uuid.uuid4())
         filename = f"{user_id}/{video_id}_{file.filename}"
 
-        # ✅ 上傳前檢查檔案內容
+        # ✅ 先讀取檔案內容，確認非空
         file_content = await file.read()
         if not file_content:
             raise HTTPException(status_code=400, detail="❌ 檔案為空，請重新選擇！")
 
-        # ✅ 重新打開 `file.file`，確保能夠上傳
-        file.file.seek(0)  # 重新設定檔案讀取位置
+        # 重新將檔案指針移回開頭，才能正常上傳到 S3
+        file.file.seek(0)
 
         # ✅ 上傳影片到 S3
         s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, filename, ExtraArgs={"ACL": "private"})
@@ -135,7 +143,7 @@ async def upload_video(
         # ✅ 取得影片 URL
         video_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{filename}"
 
-        # ✅ 儲存影片資訊到資料庫
+        # ✅ 儲存影片資訊到資料庫 (假設表名為 "videos")
         uploaded_at = datetime.utcnow().isoformat()
         supabase.table("videos").insert({
             "id": video_id,

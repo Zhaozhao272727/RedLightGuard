@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import ColorPicker from '../components/ColorPicker';
 import confetti from 'canvas-confetti'; // 🎉 星星灑落動畫
-import API_BASE_URL from '../config'; // ✅ 確保使用 API_BASE_URL
+import API_BASE_URL from '../config'; // ✅ 使用 API_BASE_URL
 
 const LoginPage = () => {
   const { theme } = useTheme();
@@ -19,7 +19,7 @@ const LoginPage = () => {
   }, [theme]);
 
   const validateInput = (field, value) => {
-    const regex = /^[a-zA-Z0-9_@.]*$/; // ✅ 允許英數字、底線、@、點（支援 email）
+    const regex = /^[a-zA-Z0-9_@.]*$/; // 允許英數字、底線、@、點（支援 email）
     if (!regex.test(value)) {
       return '只能輸入英數字、底線、@ 和點 🚫';
     }
@@ -48,44 +48,49 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // 前端簡單驗證
     if (Object.values(errors).some((err) => err) || Object.values(formData).some((val) => !val.trim())) {
-        alert('請修正錯誤並填寫完整！🚫');
-        return;
+      alert('請修正錯誤並填寫完整！🚫');
+      return;
     }
 
     setLoading(true);
     try {
-        const response = await fetch(`${API_BASE_URL}/login`, {  
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              account: formData.account,  // ❌ 錯誤！API 預期的是 `email`
-              email: formData.account,  // ✅ 這裡要傳 `email` 給後端，才能登入
-                password: formData.password,
-            }),
-        });
+      // 🚀 發送登入請求
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // 後端預期 email, password
+          email: formData.account,
+          password: formData.password,
+        }),
+      });
 
-        const data = await response.json();
-        setLoading(false);
+      const data = await response.json();
+      setLoading(false);
 
-        if (!response.ok) {
-            throw new Error(data.detail || '登入失敗，請檢查帳號密碼！');
-        }
+      if (!response.ok) {
+        throw new Error(data.detail || '登入失敗，請檢查帳號密碼！');
+      }
 
-        alert('✅ 登入成功！');
-        triggerStarRain(); // 🌠 星星動畫
+      alert('✅ 登入成功！');
+      triggerStarRain(); // 星星灑落
 
-        setTimeout(() => {
-            navigate('/upload'); 
-        }, 1500);
+      // 🚀 將 user_id、access_token 存入 localStorage
+      localStorage.setItem('user_id', data.user_id);
+      localStorage.setItem('access_token', data.access_token);
+
+      // 延遲 1.5 秒後前往上傳頁
+      setTimeout(() => {
+        navigate('/upload');
+      }, 1500);
     } catch (error) {
-        setLoading(false);
-        console.error('❌ 登入失敗：', error);
-        alert(error.message);
+      setLoading(false);
+      console.error('❌ 登入失敗：', error);
+      alert(error.message);
     }
-};
-
-
+  };
 
   return (
     <>

@@ -3,14 +3,14 @@ import '../styles/RegisterPage.css';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import ColorPicker from '../components/ColorPicker';
-import API_BASE_URL from '../config'; // ✅ 確保 API 連結正確
+import API_BASE_URL from '../config'; // 連結後端
 
 const RegisterPage = () => {
     const { theme } = useTheme();
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        username: '',  // ✅ 直接用 username 變數
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -24,7 +24,7 @@ const RegisterPage = () => {
     }, [theme]);
 
     const validateInput = (field, value) => {
-        const regex = /^[a-zA-Z0-9_@.]*$/; // ✅ 允許英數字、底線、@、點
+        const regex = /^[a-zA-Z0-9_@.]*$/;
         if (!regex.test(value)) {
             return '只能輸入英數字、底線、@ 和點 🚫';
         }
@@ -60,7 +60,7 @@ const RegisterPage = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    username: formData.username,  // ✅ 修正傳送變數
+                    username: formData.username,
                     email: formData.email,
                     password: formData.password,
                 })
@@ -94,7 +94,7 @@ const RegisterPage = () => {
                                 type="text"
                                 name="username" 
                                 placeholder="帳號（ID）"
-                                value={formData.username}  // ✅ 確保輸入框值對應 `username`
+                                value={formData.username}
                                 onChange={handleChange('username')}
                                 required
                             />

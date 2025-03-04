@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RippleButton from "./RippleButton";
 import ToastMessage from "./ToastMessage";
 import "../styles/UploadPage.css";
+import API_BASE_URL from "../config"; // ✅ 引入後端 API
 
 const VideoUpload = () => {
   const navigate = useNavigate();
@@ -11,7 +12,17 @@ const VideoUpload = () => {
   const [uploadProgress, setUploadProgress] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState(null);
-  const [uploaded, setUploaded] = useState(false); // 是否全部上傳完成
+  const [uploaded, setUploaded] = useState(false);
+
+  // 🚀 讀取 localStorage 的 user_id
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("user_id");
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
 
   const handleChooseFile = () => {
     document.getElementById("file-input").click();
@@ -45,6 +56,10 @@ const VideoUpload = () => {
   };
 
   const handleUpload = async () => {
+    if (!userId) {
+      setToast({ message: "❌ 請先登入才能上傳影片！", type: "error" });
+      return;
+    }
     if (selectedFiles.length === 0) {
       setToast({ message: "❌ 請選擇至少 1 部影片！", type: "error" });
       return;
@@ -54,17 +69,16 @@ const VideoUpload = () => {
     setUploaded(false);
     setUploadProgress({});
 
-    const userId = "test-user-123"; // 這裡可以改成真正的用戶 ID
     let successCount = 0;
 
     for (let index = 0; index < selectedFiles.length; index++) {
       const file = selectedFiles[index];
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("user_id", userId); // 確保 `user_id` 附加到 FormData
+      formData.append("user_id", userId); // 後端會使用這個
 
       try {
-        const response = await fetch("https://redlightguard.onrender.com/upload", {
+        const response = await fetch(`${API_BASE_URL}/upload`, {
           method: "POST",
           body: formData,
         });
@@ -109,9 +123,17 @@ const VideoUpload = () => {
               {uploadProgress[index] !== undefined && (
                 <div className="progress-container">
                   <div className="progress-bar-container">
-                    <div className="progress-bar" style={{ width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%`, backgroundColor: uploadProgress[index] === "❌" ? "red" : "green" }}></div>
+                    <div
+                      className="progress-bar"
+                      style={{
+                        width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%`,
+                        backgroundColor: uploadProgress[index] === "❌" ? "red" : "green",
+                      }}
+                    ></div>
                   </div>
-                  <p className="progress-text">{uploadProgress[index] === "❌" ? "❌ 失敗" : `${uploadProgress[index]}%`}</p>
+                  <p className="progress-text">
+                    {uploadProgress[index] === "❌" ? "❌ 失敗" : `${uploadProgress[index]}%`}
+                  </p>
                 </div>
               )}
 
@@ -129,14 +151,27 @@ const VideoUpload = () => {
           📂 選擇檔案 <span>（最多五部）</span>
         </RippleButton>
 
-        <input id="file-input" type="file" accept="video/*" multiple style={{ display: "none" }} onChange={handleFileChange} />
-        <span className="file-name">{selectedFiles.length > 0 ? `${selectedFiles.length} 部影片選擇完成` : "未選擇任何檔案"}</span>
+        <input
+          id="file-input"
+          type="file"
+          accept="video/*"
+          multiple
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
+        <span className="file-name">
+          {selectedFiles.length > 0 ? `${selectedFiles.length} 部影片選擇完成` : "未選擇任何檔案"}
+        </span>
       </div>
 
       <p className="file-size-limit">📏 影片大小限制：<strong>50MB 以下</strong></p>
 
       {/* 上傳按鈕 */}
-      <RippleButton className="upload-button" onClick={handleUpload} disabled={isUploading || selectedFiles.length === 0}>
+      <RippleButton
+        className="upload-button"
+        onClick={handleUpload}
+        disabled={isUploading || selectedFiles.length === 0}
+      >
         {isUploading ? "📤 上傳中..." : "🚀 上傳影片"}
       </RippleButton>
 
@@ -146,7 +181,9 @@ const VideoUpload = () => {
         </RippleButton>
       )}
 
-      {toast && <ToastMessage message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast && (
+        <ToastMessage message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
     </div>
   );
 };
