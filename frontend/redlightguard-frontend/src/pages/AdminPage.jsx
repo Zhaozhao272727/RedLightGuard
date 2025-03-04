@@ -34,14 +34,6 @@ const AdminPage = () => {
   }, [themeColor]);
 
 
-
-// 🚀 使用假資料（如果沒有 API，這樣就能測試）
-const [users, setUsers] = useState(mockUsers);
-const [uploads, setUploads] = useState(mockUploads);
-
-
-
-
   // 🚀 從 API 獲取用戶列表
   useEffect(() => {
     fetch(`${API_BASE_URL}/users`)
