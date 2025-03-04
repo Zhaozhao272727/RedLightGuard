@@ -207,20 +207,23 @@ def get_user_videos(user_id: str):
 
         # 取得 S3 影片清單
         s3 = boto3.client("s3")
-        prefix = f"{user_id}/"  # S3 裡的用戶資料夾
+        prefix = f"{user_id}/"  # 🔥 確保是 "user_id/" 結尾
         response = s3.list_objects_v2(Bucket=AWS_BUCKET_NAME, Prefix=prefix)
 
-        if "Contents" not in response:
+        if "Contents" not in response or not response["Contents"]:
             return {"message": "⚠️ 該用戶沒有上傳影片！", "videos": []}
 
-        # 組成影片列表（轉換為前端可用的格式）
-        video_list = [
-            {
-                "name": obj["Key"].split("/")[-1],  # 取出檔名
-                "url": f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{obj['Key']}"
-            }
-            for obj in response["Contents"]
-        ]
+        # 🔥 檢查是否能正確抓取影片名稱
+        video_list = []
+        for obj in response["Contents"]:
+            key = obj["Key"]
+            filename = key.split("/")[-1]  # 取得檔名
+            video_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{key}"
+            
+            video_list.append({
+                "name": filename,
+                "url": video_url
+            })
 
         return {"message": "✅ 成功取得影片列表！", "videos": video_list}
 
