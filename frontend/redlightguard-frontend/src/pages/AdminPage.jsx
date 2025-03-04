@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ColorPicker from "../components/ColorPicker";
 import "../styles/AdminPage.css";
-import { API_BASE_URL } from "../config";
+import API_BASE_URL from "../config"; // ✅ 統一改為預設匯入
 
 // 🚀 狀態標籤
 const StatusTag = ({ status }) => {
@@ -16,10 +16,12 @@ const StatusTag = ({ status }) => {
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]); // 用戶列表
+  const [users, setUsers] = useState([]);   // 用戶列表
   const [uploads, setUploads] = useState([]); // 影片列表
+
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [selectedUploads, setSelectedUploads] = useState(new Set());
+
   const [themeColor, setThemeColor] = useState("#e57373");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -29,22 +31,41 @@ const AdminPage = () => {
     document.documentElement.style.setProperty("--hover-glow-color", themeColor);
   }, [themeColor]);
 
-  // 🚀 從 API 獲取數據
+  // 🚀 從 API 獲取用戶列表
   useEffect(() => {
     fetch(`${API_BASE_URL}/users`)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`❌ 無法獲取用戶清單 (錯誤碼 ${response.status})`);
+        }
+        return response.json();
+      })
       .then((data) => {
+        // 如果後端回傳結構類似 { data: { data: [...] } }
+        // 可依實際情況調整
         if (data.data && data.data.data) {
           setUsers(data.data.data);
+        } else {
+          console.warn("⚠️ 用戶清單格式與預期不同", data);
         }
       })
       .catch((error) => console.error("❌ 無法獲取用戶清單:", error));
+  }, []);
 
+  // 🚀 從 API 獲取影片列表
+  useEffect(() => {
     fetch(`${API_BASE_URL}/videos`)
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`❌ 無法獲取影片列表 (錯誤碼 ${response.status})`);
+        }
+        return response.json();
+      })
       .then((data) => {
         if (data.data && data.data.data) {
           setUploads(data.data.data);
+        } else {
+          console.warn("⚠️ 影片列表格式與預期不同", data);
         }
       })
       .catch((error) => console.error("❌ 無法獲取影片列表:", error));
@@ -64,7 +85,7 @@ const AdminPage = () => {
     return userDate >= new Date(startDate) && userDate <= new Date(endDate);
   });
 
-  // 🗑️ 刪除選取的用戶
+  // 🗑️ 刪除選取的用戶（前端暫時移除，可自行串接 DELETE /users/:id）
   const deleteSelectedUsers = () => {
     if (selectedUsers.size === 0) {
       alert("請先選取用戶！");
@@ -76,7 +97,7 @@ const AdminPage = () => {
     }
   };
 
-  // 🗑️ 刪除選取的影片
+  // 🗑️ 刪除選取的影片（前端暫時移除，可自行串接 DELETE /videos/:id）
   const deleteSelectedUploads = () => {
     if (selectedUploads.size === 0) {
       alert("請先選取影片！");
@@ -96,9 +117,17 @@ const AdminPage = () => {
       {/* 📅 日期篩選區 */}
       <div className="filter-container">
         <label>篩選日期區間：</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
         <span> - </span>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
       </div>
 
       {/* 👥 用戶區塊 */}
@@ -134,7 +163,9 @@ const AdminPage = () => {
         <h2>📤 Uploads ({filteredUploads.length})</h2>
         <ul className="scrollable-list">
           {filteredUploads.map((upload) => {
-            const uploader = users.find((user) => user.id.trim() === upload.user_id.trim());
+            const uploader = users.find(
+              (user) => user.id.trim() === upload.user_id.trim()
+            );
             return (
               <li key={upload.id} className="admin-item">
                 <input
@@ -143,7 +174,9 @@ const AdminPage = () => {
                   onChange={() =>
                     setSelectedUploads((prev) => {
                       const newSet = new Set(prev);
-                      newSet.has(upload.id) ? newSet.delete(upload.id) : newSet.add(upload.id);
+                      newSet.has(upload.id)
+                        ? newSet.delete(upload.id)
+                        : newSet.add(upload.id);
                       return newSet;
                     })
                   }

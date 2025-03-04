@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "../styles/AnalysisPage.css"; // ✅ 正確的 CSS
 import "../styles/ColorPicker.css";  // ✅ 確保變色小球的樣式載入
-import ColorPicker from "../components/ColorPicker"; // ✅ 引入變色小球組件
+import ColorPicker from "../components/ColorPicker";
+import API_BASE_URL from "../config"; // ✅ 如需呼叫後端，可用此常數
 
 const AnalysisPage = () => {
   const [analysisResults, setAnalysisResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔥 模擬獲取分析結果
+    // 🌟 可改為 fetch(`${API_BASE_URL}/analysis`) 或 /predict, 視後端實際接口而定
+    // 這裡保留你的 setTimeout 模擬結果
     setTimeout(() => {
       setAnalysisResults([
         {
@@ -36,7 +38,7 @@ const AnalysisPage = () => {
     <div className="analysis-container">
       {/* 🌟 變色小球 */}
       <ColorPicker />
-      
+
       <h2>📊 影片分析結果</h2>
 
       {loading ? (
@@ -58,7 +60,12 @@ const AnalysisPage = () => {
                   LSTM
                 </label>
                 <label>
-                  <input type="radio" value="Transformer" checked={video.model === "Transformer"} readOnly />
+                  <input
+                    type="radio"
+                    value="Transformer"
+                    checked={video.model === "Transformer"}
+                    readOnly
+                  />
                   Transformer
                 </label>
                 <label>
@@ -76,10 +83,12 @@ const AnalysisPage = () => {
                 )}
               </p>
 
-              {/* 🛠️ 違規時間段的按鈕（橫排） */}
+              {/* 🛠️ 違規時間段的按鈕 */}
               {video.status === "違規" && (
                 <div className="violation-actions">
-                  <button className="seek-button">⏩ 00:15 - 00:30</button>
+                  {video.violationSegments.map((segment, idx) => (
+                    <button key={idx} className="seek-button">⏩ {segment}</button>
+                  ))}
                   <button className="reanalyze-button">🔄 重新分析</button>
                   <button className="download-button">⬇ 下載</button>
                 </div>
