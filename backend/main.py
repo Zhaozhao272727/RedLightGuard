@@ -1,12 +1,12 @@
-kifrom fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
+import boto3
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
-import uvicorn
 
 # ✅ 1. 載入環境變數
 load_dotenv()
@@ -14,16 +14,32 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME")
+AWS_REGION = os.getenv("AWS_REGION", "ap-northeast-1")
+
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("❌ Supabase 環境變數未正確載入！")
+
+if not AWS_ACCESS_KEY or not AWS_SECRET_KEY or not AWS_BUCKET_NAME:
+    raise ValueError("❌ AWS S3 環境變數未正確載入！")
 
 # ✅ 2. 連接 Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ✅ 3. 初始化 FastAPI
+# ✅ 3. 連接 S3
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY,
+    region_name=AWS_REGION
+)
+
+# ✅ 4. 初始化 FastAPI
 app = FastAPI()
 
-# ✅ 4. 設定 CORS
+# ✅ 5. 設定 CORS（允許所有請求）
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,7 +48,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ 5. 健康檢查 API
 @app.get("/ping")
 def health_check():
     return {"message": "pong"}
@@ -40,7 +55,6 @@ def health_check():
 @app.get("/")
 def home():
     return {"message": "✅ RedLightGuard API is running!"}
-
 
 # ✅ 6. 用戶模型
 class UserCreate(BaseModel):
@@ -52,24 +66,20 @@ class LoginRequest(BaseModel):
     email: str  
     password: str
 
-# ✅ 7. 註冊 API（使用 Supabase Auth）
-# ✅ 確保 API 只傳送必要欄位
+# ✅ 7. 註冊 API
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
-        # 使用 Supabase Auth 註冊用戶
         auth_response = supabase.auth.sign_up({
             "email": user.email,  
             "password": user.password
         })
 
-        # 確保 `user` 存在
         if auth_response.user is None:
             raise HTTPException(status_code=400, detail="❌ 註冊失敗: 無法取得用戶資訊")
 
-        user_id = auth_response.user.id  # 正確存取 user_id
+        user_id = auth_response.user.id 
 
-        # 🚀 **確保不再試圖插入 `account`**
         supabase.table("users").insert({
             "id": user_id,
             "username": user.username,  
@@ -83,9 +93,7 @@ def register_user(user: UserCreate):
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
 
 
-
-
-# ✅ 8. 登入 API（使用 Supabase Auth）
+# ✅ 8. 登入 API
 @app.post("/login")
 def login(request: LoginRequest):
     try:
@@ -94,7 +102,6 @@ def login(request: LoginRequest):
             "password": request.password
         })
 
-        # 🔥 確保 `session` & `user` 存在
         if auth_response.session is None:
             raise HTTPException(status_code=401, detail="❌ 登入失敗: 無法驗證用戶")
 
@@ -117,27 +124,26 @@ def get_users():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得用戶列表失敗: {str(e)}")
 
-# ✅ 10. 影片 API
-class VideoUpload(BaseModel):
-    user_id: str
-    filename: str
 
-@app.post("/upload")
-def upload_video(video: VideoUpload):
+# ✅ 10. 影片 API
+@app.post("/upload-video/")
+async def upload_video(file: UploadFile = File(...)):
     try:
-        video_id = str(uuid.uuid4())  
-        uploaded_at = datetime.utcnow().isoformat()  
-        new_video = {
-            "id": video_id,
-            "user_id": video.user_id,
-            "filename": video.filename,
-            "uploaded_at": uploaded_at,
-            "status": "pending"
-        }
-        supabase.table("videos").insert(new_video).execute()
-        return {"message": "✅ 影片資訊已儲存！", "video_id": video_id}
+        # ✅ 取得檔案資訊
+        file_ext = file.filename.split(".")[-1]  
+        filename = f"videos/{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.{file_ext}"
+
+        # ✅ 上傳到 S3
+        s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, filename)
+
+        # ✅ 取得影片 URL
+        file_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{filename}"
+
+        return {"message": "✅ 影片上傳成功！", "file_url": file_url}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 影片上傳失敗: {str(e)}")
+
 
 @app.get("/videos")
 def get_videos():
@@ -147,11 +153,7 @@ def get_videos():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
 
-
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.api_route("/ping", methods=["GET", "HEAD"])
+# ✅ 11. UptimeRobot API
+@app.get("/ping", response_model=dict)
 def health_check():
     return {"status": "ok", "message": "pong"}
