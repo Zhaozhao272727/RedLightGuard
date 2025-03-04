@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
+import hashlib
 from cut_video import app as cut_video_app
 
 # ✅ 1. 載入環境變數
@@ -42,43 +43,25 @@ s3_client = boto3.client(
     region_name=AWS_REGION
 )
 
-# ======== Debug：印出目前程式抓到的環境變數（只顯示一部分）========
-@app.on_event("startup")
-def startup_event():
-    print("=== DEBUG: Environment Variables ===")
-    print(f"AWS_ACCESS_KEY_ID => {str(AWS_ACCESS_KEY)[:6]}******")  # 避免洩露
-    print(f"AWS_SECRET_ACCESS_KEY => {str(AWS_SECRET_KEY)[:6]}******")
-    print(f"AWS_S3_BUCKET_NAME => {AWS_BUCKET_NAME}")
-    print(f"AWS_REGION => {AWS_REGION}")
-    print(f"SUPABASE_URL => {SUPABASE_URL}")
-    print(f"SUPABASE_KEY => {str(SUPABASE_KEY)[:6]}******")
-    print("====================================")
-
-# ✅ 6. 健康檢查 API (UptimeRobot 會用 HEAD 或 GET)
+# ✅ 6. 健康檢查 API
 @app.get("/ping")
 def health_check():
     return {"message": "pong"}
 
 @app.head("/ping")
 def head_ping():
-    # 給 UptimeRobot 用，回傳 200 即可
     return Response(status_code=200)
 
 @app.get("/")
 def home():
     return {"message": "✅ RedLightGuard API is running!"}
 
-# ✅ 7. 用戶模型
+# ✅ 7. 註冊 API（Supabase Auth）
 class UserCreate(BaseModel):
     email: str
     username: str
     password: str
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-# ✅ 8. 註冊 API（使用 Supabase Auth）
 @app.post("/register")
 def register_user(user: UserCreate):
     try:
@@ -88,11 +71,9 @@ def register_user(user: UserCreate):
         })
 
         if auth_response.user is None:
-            raise HTTPException(status_code=400, detail="❌ 註冊失敗: 無法取得用戶資訊")
+            raise HTTPException(status_code=400, detail="❌ 註冊失敗")
 
         user_id = auth_response.user.id
-
-        # 將使用者資訊存進資料表 (假設表名為 "users")
         supabase.table("users").insert({
             "id": user_id,
             "username": user.username,
@@ -105,7 +86,11 @@ def register_user(user: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 註冊失敗: {str(e)}")
 
-# ✅ 9. 登入 API
+# ✅ 8. 登入 API
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
 @app.post("/login")
 def login(request: LoginRequest):
     try:
@@ -115,7 +100,7 @@ def login(request: LoginRequest):
         })
 
         if auth_response.session is None:
-            raise HTTPException(status_code=401, detail="❌ 登入失敗: 無法驗證用戶")
+            raise HTTPException(status_code=401, detail="❌ 登入失敗")
 
         return {
             "message": "✅ 登入成功！",
@@ -126,38 +111,33 @@ def login(request: LoginRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 伺服器錯誤: {str(e)}")
 
-# ✅ 10. S3 影片上傳 API
+# ✅ 9. 影片上傳 API（避免重複上傳）
 @app.post("/upload")
 async def upload_video(
     file: UploadFile = File(...),
     user_id: str = Form(...)
 ):
-    # 先做 debug log
-    print("=== DEBUG: /upload was called ===")
-    print(f"DEBUG: user_id => {user_id}")
-    if file:
-        print(f"DEBUG: file.filename => {file.filename}")
-    else:
-        print("DEBUG: file => None")
-    print(f"DEBUG: AWS_BUCKET_NAME => {AWS_BUCKET_NAME}")
-    print("==========================")
-
     try:
         if not user_id:
-            raise HTTPException(status_code=400, detail="❌ 缺少 user_id！請先登入或帶上 user_id")
+            raise HTTPException(status_code=400, detail="❌ 缺少 user_id！請先登入")
 
         if file is None:
-            raise HTTPException(status_code=400, detail="❌ 沒有收到影片檔案，請重新選擇！")
+            raise HTTPException(status_code=400, detail="❌ 沒有收到影片檔案")
 
+        # ✅ 計算檔案的哈希值，避免重複上傳
+        file_content = await file.read()
+        file_hash = hashlib.md5(file_content).hexdigest()
+
+        # 檢查是否已經上傳過
+        existing_video = supabase.table("videos").select("id").eq("hash", file_hash).execute()
+        if existing_video.data:
+            raise HTTPException(status_code=400, detail="⚠️ 影片已上傳過，請勿重複上傳！")
+
+        # 生成唯一檔名
         video_id = str(uuid.uuid4())
         filename = f"{user_id}/{video_id}_{file.filename}"
 
-        # ✅ 先讀取檔案內容，確認非空
-        file_content = await file.read()
-        if not file_content:
-            raise HTTPException(status_code=400, detail="❌ 檔案為空，請重新選擇！")
-
-        # 重新將檔案指針移回開頭，才能正常上傳到 S3
+        # 重新將檔案指針移回開頭，才能正常上傳
         file.file.seek(0)
 
         # ✅ 上傳影片到 S3
@@ -168,16 +148,16 @@ async def upload_video(
             ExtraArgs={"ACL": "private"}
         )
 
-        # ✅ 取得影片 URL
         video_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{filename}"
 
-        # ✅ 儲存影片資訊到資料庫 (假設表名為 "videos")
+        # ✅ 儲存影片資訊
         uploaded_at = datetime.utcnow().isoformat()
         supabase.table("videos").insert({
             "id": video_id,
             "user_id": user_id,
             "filename": file.filename,
             "s3_url": video_url,
+            "hash": file_hash,
             "uploaded_at": uploaded_at,
             "status": "pending"
         }).execute()
@@ -187,49 +167,33 @@ async def upload_video(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 影片上傳失敗: {str(e)}")
 
-# ✅ 11. 取得影片列表 API
-@app.get("/videos")
-def get_videos():
-    try:
-        response = supabase.table("videos").select("*").execute()
-        return {"message": "✅ 成功取得影片列表！", "data": response.data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
-
-# ✅ 12. 取得特定用戶的影片列表 API
+# ✅ 10. 取得特定用戶的影片列表 API
 @app.get("/user/videos")
 def get_user_videos(user_id: str):
-    """
-    🚀 取得該用戶上傳的影片列表（從 S3 讀取）
-    """
     try:
         if not user_id:
             raise HTTPException(status_code=400, detail="❌ 缺少 user_id！")
 
         # 取得 S3 影片清單
         s3 = boto3.client("s3")
-        prefix = f"{user_id}/"  # 🔥 確保是 "user_id/" 結尾
+        prefix = f"{user_id}/"
         response = s3.list_objects_v2(Bucket=AWS_BUCKET_NAME, Prefix=prefix)
 
         if "Contents" not in response or not response["Contents"]:
             return {"message": "⚠️ 該用戶沒有上傳影片！", "videos": []}
 
-        # 🔥 檢查是否能正確抓取影片名稱
-        video_list = []
-        for obj in response["Contents"]:
-            key = obj["Key"]
-            filename = key.split("/")[-1]  # 取得檔名
-            video_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{key}"
-            
-            video_list.append({
-                "name": filename,
-                "url": video_url
-            })
+        video_list = [
+            {
+                "name": obj["Key"].split("/")[-1],
+                "url": f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{obj['Key']}"
+            }
+            for obj in response["Contents"]
+        ]
 
         return {"message": "✅ 成功取得影片列表！", "videos": video_list}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
 
-# ✅ 13 這行確保 /cut 被掛載到 /videos/cut
+# ✅ 11. 掛載 `/videos/cut`（影片裁剪 API）
 app.mount("/videos", cut_video_app)
