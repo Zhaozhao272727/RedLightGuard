@@ -12,22 +12,22 @@ const AnalysisPage = () => {
     const fakeData = [
       {
         name: "utomp3.com - 闖闖闖闖闖紅燈.mp4",
-        url: "https://res.cloudinary.com/你的帳號/video/upload/x2kwveo5g8j1wwwgkbty.mp4",
-        downloadUrl: "https://res.cloudinary.com/你的帳號/video/upload/x2kwveo5g8j1wwwgkbty.mp4",
+        url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119419/x2kwveo5g8j1wwwgkbty.mp4",
+        downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119419/x2kwveo5g8j1wwwgkbty.mp4",
         status: "違規",
         violationSegments: ["00:10 - 00:20"]
       },
       {
         name: "utomp3.com - 這紅綠燈會引誘人闖紅燈.mp4",
-        url: "https://res.cloudinary.com/你的帳號/video/upload/ef3xpgef3hyfkcorpcdy.mp4",
-        downloadUrl: "https://res.cloudinary.com/你的帳號/video/upload/ef3xpgef3hyfkcorpcdy.mp4",
+        url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
+        downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
         status: "違規",
         violationSegments: ["00:05 - 00:07", "01:00 - 01:05"]
       },
       {
         name: "『療癒片』記得禮讓行人.mp4",
-        url: "https://res.cloudinary.com/你的帳號/video/upload/nwljx7iljyq8addtdwx0.mp4",
-        downloadUrl: "https://res.cloudinary.com/你的帳號/video/upload/nwljx7iljyq8addtdwx0.mp4",
+        url: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/ef3xpgef3hyfkcorpcdy.mp4",
+        downloadUrl: "https://res.cloudinary.com/dsot3yynx/video/upload/v1741119420/nwljx7iljyq8addtdwx0.mp4",
         status: "無違規",
         violationSegments: []
       }
