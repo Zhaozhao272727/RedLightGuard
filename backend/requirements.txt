@@ -7,7 +7,12 @@ requests  # API 請求（如果有用）
 supabase  # 連接 Supabase
 pydantic  # 資料驗證
 numpy  # 數據處理
-opencv-python  # 影片處理（如果會用）
-pillow  # 圖片處理（如果需要）
+opencv-python-headless  # 影片處理
+pillow  # 圖片處理
+python-multipart  # 表單數據處理（避免 fastapi 錯誤）
 
-
+# Hugging Face 相關依賴
+transformers  # NLP 模型
+torch  # PyTorch（用於深度學習）
+diffusers  # 影像生成模型
+datasets  # 用於處理 Hugging Face 數據集
