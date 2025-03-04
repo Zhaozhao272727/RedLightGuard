@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+kifrom fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 import os
@@ -147,3 +147,11 @@ def get_videos():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
 
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.api_route("/ping", methods=["GET", "HEAD"])
+def health_check():
+    return {"status": "ok", "message": "pong"}
