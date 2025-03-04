@@ -8,20 +8,28 @@ import API_BASE_URL from "../config"; // ✅ 引入後端 API
 const VideoUpload = () => {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState([]); // 多個影片檔案
-  const [videoURLs, setVideoURLs] = useState([]); // 影片預覽 URL
+  const [videoURLs, setVideoURLs] = useState([]);         // 影片預覽 URL
   const [uploadProgress, setUploadProgress] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState(null);
   const [uploaded, setUploaded] = useState(false);
 
-  // 🚀 讀取 localStorage 的 user_id
+  // 🚀 從 Supabase Auth 取得的 user_id
   const [userId, setUserId] = useState("");
 
+  // 🚀 在元件載入時，檢查 localStorage 是否有 user_id
   useEffect(() => {
     const storedUserId = localStorage.getItem("user_id");
-    if (storedUserId) {
+    const storedToken = localStorage.getItem("access_token");
+
+    if (!storedUserId || !storedToken) {
+      // 若沒有 userId 或 token，代表尚未登入
+      setToast({ message: "❌ 請先登入再上傳影片！", type: "error" });
+      navigate("/login");
+    } else {
       setUserId(storedUserId);
     }
+    // eslint-disable-next-line
   }, []);
 
   const handleChooseFile = () => {
@@ -56,8 +64,9 @@ const VideoUpload = () => {
   };
 
   const handleUpload = async () => {
+    // 再次確認 user_id 是否存在
     if (!userId) {
-      setToast({ message: "❌ 請先登入才能上傳影片！", type: "error" });
+      setToast({ message: "❌ 尚未登入，無法上傳！", type: "error" });
       return;
     }
     if (selectedFiles.length === 0) {
@@ -71,6 +80,7 @@ const VideoUpload = () => {
 
     let successCount = 0;
 
+    // 🚀 逐檔上傳
     for (let index = 0; index < selectedFiles.length; index++) {
       const file = selectedFiles[index];
       const formData = new FormData();
@@ -112,6 +122,13 @@ const VideoUpload = () => {
       <h2 className="main-title">🚦 RedLightGuard</h2>
       <h3 className="upload-title">影片上傳區</h3>
 
+      {/* 顯示當前使用者 ID （可選） */}
+      {userId && (
+        <p style={{ color: "gray", fontSize: "0.9rem" }}>
+          目前登入的 User ID：<strong>{userId}</strong>
+        </p>
+      )}
+
       {/* 影片預覽區塊 */}
       {videoURLs.length > 0 && (
         <div className="video-preview-container">
@@ -129,7 +146,7 @@ const VideoUpload = () => {
                         width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%`,
                         backgroundColor: uploadProgress[index] === "❌" ? "red" : "green",
                       }}
-                    ></div>
+                    />
                   </div>
                   <p className="progress-text">
                     {uploadProgress[index] === "❌" ? "❌ 失敗" : `${uploadProgress[index]}%`}
@@ -164,7 +181,9 @@ const VideoUpload = () => {
         </span>
       </div>
 
-      <p className="file-size-limit">📏 影片大小限制：<strong>50MB 以下</strong></p>
+      <p className="file-size-limit">
+        📏 影片大小限制：<strong>50MB 以下</strong>
+      </p>
 
       {/* 上傳按鈕 */}
       <RippleButton
