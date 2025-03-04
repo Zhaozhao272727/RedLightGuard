@@ -9,6 +9,7 @@ pydantic  # 資料驗證
 numpy  # 數據處理
 opencv-python-headless  # 影片處理
 pillow  # 圖片處理
+moviepy
 python-multipart  # 表單數據處理（避免 fastapi 錯誤）
 
 # Hugging Face 相關依賴
