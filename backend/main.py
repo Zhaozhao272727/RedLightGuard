@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import uuid
 from datetime import datetime
+from cut_video import app as cut_video_app
 
 # ✅ 1. 載入環境變數
 load_dotenv()
@@ -229,3 +230,6 @@ def get_user_videos(user_id: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"❌ 取得影片列表失敗: {str(e)}")
+
+# ✅ 13 這行確保 /cut 被掛載到 /videos/cut
+app.mount("/videos", cut_video_app)
