@@ -12,13 +12,13 @@ const AnalysisPage = () => {
     const fakeData = [
       {
         name: "utomp3.com - 闖闖闖闖闖紅燈.mp4",
-        url: "https://drive.google.com/uc?id=1RlA0ahPrqQW5fyRFw34HRcWAlRz-PyB0", // ✅ 轉換為可嵌入影片的 URL
+        url: "https://drive.google.com/uc?id=1RlA0ahPrqQW5fyRFw34HRcWAlRz-PyB0",  
         downloadUrl: "https://drive.google.com/file/d/1RlA0ahPrqQW5fyRFw34HRcWAlRz-PyB0/view?usp=sharing",
         status: "違規",
         violationSegments: ["00:10 - 00:20"]
       },
       {
-        name: "utomp3.com - 這紅綠燈會引誘人闖紅燈檢舉成功_360P.mp4",
+        name: "utomp3.com - 這紅綠燈會引誘人闖紅燈.mp4",
         url: "https://drive.google.com/uc?id=1mOCqvpIXaeKw_dJKssxSkOoeXNfmNdb2",
         downloadUrl: "https://drive.google.com/file/d/1mOCqvpIXaeKw_dJKssxSkOoeXNfmNdb2/view?usp=sharing",
         status: "違規",
@@ -40,12 +40,29 @@ const AnalysisPage = () => {
     }, 1200);
   }, []);
 
+  // 🛠️ 跳轉到違規時間段的函數
+  const handleSeek = (videoId, segment) => {
+    if (!segment) return; // 防止錯誤
+
+    // 解析時間 "00:10 - 00:20" 取 "00:10"
+    const startTime = segment.split(" - ")[0]; 
+    const [minutes, seconds] = startTime.split(":").map(Number);
+    const seekTime = minutes * 60 + seconds;
+
+    // 找到影片元素並設定時間
+    const videoElement = document.getElementById(videoId);
+    if (videoElement) {
+      videoElement.currentTime = seekTime;
+      videoElement.play();
+    }
+  };
+
   return (
     <div className="analysis-container">
       {/* 🌟 變色小球 */}
       <ColorPicker />
 
-      <h2>📊 影片分析結果（假資料展示）</h2>
+      <h2>📊 影片分析結果</h2>
 
       {loading ? (
         <p>⏳ 正在加載分析結果...</p>
@@ -54,8 +71,8 @@ const AnalysisPage = () => {
           {analysisResults.map((video, index) => (
             <li key={index} className="video-item">
               <h3>🎥 {video.name}</h3>
-              
-              {/* ✅ 修正 video id 語法，確保唯一 */}
+
+              {/* ✅ 修正 video id 確保唯一 */}
               <video id={`video-${index}`} width="100%" controls>
                 <source src={video.url} type="video/mp4" />
                 您的瀏覽器不支援影片播放。
@@ -70,15 +87,14 @@ const AnalysisPage = () => {
                 )}
               </p>
 
-              {/* 🛠️ 違規時間段按鈕 (保留 ⏩ 供展示) */}
+              {/* 🛠️ 只顯示 1 個「跳轉按鈕」 */}
               {video.status === "違規" && video.violationSegments.length > 0 && (
-                <div className="violation-actions">
-                  {video.violationSegments.map((segment, idx) => (
-                    <button key={idx} className="seek-button">
-                      ⏩ {segment}
-                    </button>
-                  ))}
-                </div>
+                <button 
+                  className="seek-button" 
+                  onClick={() => handleSeek(`video-${index}`, video.violationSegments[0])}
+                >
+                  ⏩ 跳轉到違規時間
+                </button>
               )}
 
               {/* 下載按鈕 ✅ 讓用戶可以下載 */}
