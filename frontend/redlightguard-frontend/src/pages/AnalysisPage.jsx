@@ -5,37 +5,58 @@ import ColorPicker from "../components/ColorPicker";
 import API_BASE_URL from "../config"; // ✅ 引入 API_BASE_URL
 
 const AnalysisPage = () => {
-  const [analysisResults, setAnalysisResults] = useState([]);
+  const [analysisResults, setAnalysisResults] = useState([]); // ✅ 預設空陣列，避免 `undefined`
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
+    // ✅ 取得 `userId`
+    const storedUserId = localStorage.getItem("user_id");
+    if (!storedUserId) {
+      console.error("❌ 未找到 user_id，請先登入！");
+      return;
+    }
+    setUserId(storedUserId);
+
     const fetchVideos = async () => {
       try {
-        const userId = encodeURIComponent(localStorage.getItem("user_id"));
-        const response = await fetch(`${API_BASE_URL}/user/videos?user_id=${userId}`);
-  
+        const encodedUserId = encodeURIComponent(storedUserId);
+        const response = await fetch(`${API_BASE_URL}/user/videos?user_id=${encodedUserId}`);
+
         const data = await response.json();
         console.log("🎬 取得影片列表:", data); // 🔥 Debug: 確認 API 回傳
-  
-        // ✅ 確保 `videos` 是陣列，避免 `.map` 錯誤
-        if (!Array.isArray(data.videos)) {
-          throw new Error("影片列表格式錯誤！");
+
+        // ✅ 確保 `videos` 是陣列
+        if (!data.videos || !Array.isArray(data.videos)) {
+          console.error("❌ 影片列表格式錯誤，設定為空陣列！");
+          setAnalysisResults([]); // 避免 `.map()` 出錯
+          return;
         }
-  
+
         setAnalysisResults(data.videos);
+        setLoading(false);
       } catch (error) {
         console.error("❌ 取得影片失敗:", error);
-        setAnalysisResults([]); // 🔥 失敗時，確保是空陣列，避免 `.map` 錯誤
+        setAnalysisResults([]); // 失敗時確保是陣列
+        setLoading(false);
       }
     };
-  
+
     fetchVideos();
   }, []);
-  
+
   // 🚀 重新分析影片（呼叫 `/videos/cut` API）
   const handleReanalyze = async (video) => {
-    if (!userId) return;
+    if (!userId) {
+      alert("❌ 未登入，請先登入再分析！");
+      return;
+    }
+
+    // ✅ 確保 `violationSegments` 存在
+    if (!video.violationSegments || video.violationSegments.length === 0) {
+      alert("❌ 此影片沒有違規時間段！");
+      return;
+    }
 
     const [start, end] = video.violationSegments[0].split(" - ").map((time) => {
       const [min, sec] = time.split(":").map(Number);
@@ -73,12 +94,12 @@ const AnalysisPage = () => {
 
       {loading ? (
         <p>⏳ 正在加載分析結果...</p>
-      ) : (
+      ) : analysisResults.length > 0 ? ( // ✅ 確保有資料才 `.map()`
         <ul className="video-list">
-          {analysisResults.map((video) => (
-            <li key={video.id} className="video-item">
+          {analysisResults.map((video, index) => (
+            <li key={index} className="video-item">
               <h3>🎥 {video.name}</h3>
-              <video id={`video-${video.id}`} width="100%" controls>
+              <video id={`video-${index}`} width="100%" controls>
                 <source src={video.url} type="video/mp4" />
                 您的瀏覽器不支援影片播放。
               </video>
@@ -114,7 +135,7 @@ const AnalysisPage = () => {
               </p>
 
               {/* 🛠️ 違規時間段的按鈕 */}
-              {video.status === "違規" && (
+              {video.status === "違規" && video.violationSegments && (
                 <div className="violation-actions">
                   {video.violationSegments.map((segment, idx) => (
                     <button key={idx} className="seek-button">⏩ {segment}</button>
@@ -130,6 +151,8 @@ const AnalysisPage = () => {
             </li>
           ))}
         </ul>
+      ) : (
+        <p>🚫 沒有可顯示的影片</p>
       )}
     </div>
   );
