@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+boto3
 psycopg2  # PostgreSQL 資料庫連接
 python-dotenv  # 讀取 .env 環境變數
 requests  # API 請求（如果有用）
@@ -8,5 +9,5 @@ pydantic  # 資料驗證
 numpy  # 數據處理
 opencv-python  # 影片處理（如果會用）
 pillow  # 圖片處理（如果需要）
-boto3
+
 
