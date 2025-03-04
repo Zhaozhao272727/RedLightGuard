@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Form, Response
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 import boto3
@@ -41,6 +41,18 @@ s3_client = boto3.client(
     region_name=AWS_REGION
 )
 
+# ======== Debug：印出目前程式抓到的環境變數（只顯示一部分）========
+@app.on_event("startup")
+def startup_event():
+    print("=== DEBUG: Environment Variables ===")
+    print(f"AWS_ACCESS_KEY_ID => {str(AWS_ACCESS_KEY)[:6]}******")  # 避免洩露
+    print(f"AWS_SECRET_ACCESS_KEY => {str(AWS_SECRET_KEY)[:6]}******")
+    print(f"AWS_S3_BUCKET_NAME => {AWS_BUCKET_NAME}")
+    print(f"AWS_REGION => {AWS_REGION}")
+    print(f"SUPABASE_URL => {SUPABASE_URL}")
+    print(f"SUPABASE_KEY => {str(SUPABASE_KEY)[:6]}******")
+    print("====================================")
+
 # ✅ 6. 健康檢查 API (UptimeRobot 會用 HEAD 或 GET)
 @app.get("/ping")
 def health_check():
@@ -57,12 +69,12 @@ def home():
 
 # ✅ 7. 用戶模型
 class UserCreate(BaseModel):
-    email: str  
+    email: str
     username: str
     password: str
 
 class LoginRequest(BaseModel):
-    email: str  
+    email: str
     password: str
 
 # ✅ 8. 註冊 API（使用 Supabase Auth）
@@ -70,7 +82,7 @@ class LoginRequest(BaseModel):
 def register_user(user: UserCreate):
     try:
         auth_response = supabase.auth.sign_up({
-            "email": user.email,  
+            "email": user.email,
             "password": user.password
         })
 
@@ -116,9 +128,19 @@ def login(request: LoginRequest):
 # ✅ 10. S3 影片上傳 API
 @app.post("/upload")
 async def upload_video(
-    file: UploadFile = File(...), 
+    file: UploadFile = File(...),
     user_id: str = Form(...)
 ):
+    # 先做 debug log
+    print("=== DEBUG: /upload was called ===")
+    print(f"DEBUG: user_id => {user_id}")
+    if file:
+        print(f"DEBUG: file.filename => {file.filename}")
+    else:
+        print("DEBUG: file => None")
+    print(f"DEBUG: AWS_BUCKET_NAME => {AWS_BUCKET_NAME}")
+    print("==========================")
+
     try:
         if not user_id:
             raise HTTPException(status_code=400, detail="❌ 缺少 user_id！請先登入或帶上 user_id")
@@ -138,7 +160,12 @@ async def upload_video(
         file.file.seek(0)
 
         # ✅ 上傳影片到 S3
-        s3_client.upload_fileobj(file.file, AWS_BUCKET_NAME, filename, ExtraArgs={"ACL": "private"})
+        s3_client.upload_fileobj(
+            file.file,
+            AWS_BUCKET_NAME,
+            filename,
+            ExtraArgs={"ACL": "private"}
+        )
 
         # ✅ 取得影片 URL
         video_url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{filename}"
