@@ -44,7 +44,7 @@ const VideoUpload = () => {
     setToast({ message: "🗑️ 影片已刪除！", type: "info" });
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (selectedFiles.length === 0) {
       setToast({ message: "❌ 請選擇至少 1 部影片！", type: "error" });
       return;
@@ -52,27 +52,42 @@ const VideoUpload = () => {
 
     setIsUploading(true);
     setUploaded(false);
-    const progress = {};
-    selectedFiles.forEach((_, index) => (progress[index] = 0));
-    setUploadProgress(progress);
+    setUploadProgress({});
 
-    selectedFiles.forEach((_, index) => {
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          const newProgress = { ...prev, [index]: prev[index] + 10 };
-          if (newProgress[index] >= 100) {
-            clearInterval(interval);
-            if (Object.values(newProgress).every((p) => p === 100)) {
-              setUploaded(true);
-              setToast({ message: "✅ 所有影片上傳成功！", type: "success" });
-            }
-          }
-          return newProgress;
+    const userId = "test-user-123"; // 這裡可以改成真正的用戶 ID
+    let successCount = 0;
+
+    for (let index = 0; index < selectedFiles.length; index++) {
+      const file = selectedFiles[index];
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("user_id", userId);
+
+      try {
+        const response = await fetch("https://redlightguard.onrender.com/upload", {
+          method: "POST",
+          body: formData,
         });
-      }, 500);
-    });
+
+        const result = await response.json();
+        if (response.ok) {
+          successCount++;
+          setUploadProgress((prev) => ({ ...prev, [index]: 100 }));
+        } else {
+          setUploadProgress((prev) => ({ ...prev, [index]: "❌" }));
+          setToast({ message: `❌ 上傳失敗：${result.detail || "發生錯誤"}`, type: "error" });
+        }
+      } catch (error) {
+        setUploadProgress((prev) => ({ ...prev, [index]: "❌" }));
+        setToast({ message: `❌ 伺服器錯誤，請稍後再試`, type: "error" });
+      }
+    }
 
     setIsUploading(false);
+    if (successCount === selectedFiles.length) {
+      setUploaded(true);
+      setToast({ message: "✅ 所有影片上傳成功！", type: "success" });
+    }
   };
 
   return (
@@ -91,9 +106,9 @@ const VideoUpload = () => {
               {uploadProgress[index] !== undefined && (
                 <div className="progress-container">
                   <div className="progress-bar-container">
-                    <div className="progress-bar" style={{ width: `${uploadProgress[index]}%` }}></div>
+                    <div className="progress-bar" style={{ width: `${uploadProgress[index] === "❌" ? 100 : uploadProgress[index]}%` }}></div>
                   </div>
-                  <p className="progress-text">{uploadProgress[index]}%</p>
+                  <p className="progress-text">{uploadProgress[index] === "❌" ? "❌ 失敗" : `${uploadProgress[index]}%`}</p>
                 </div>
               )}
 
@@ -119,12 +134,12 @@ const VideoUpload = () => {
 
       {/* 上傳按鈕 */}
       <RippleButton className="upload-button" onClick={handleUpload} disabled={isUploading || selectedFiles.length === 0}>
-        {isUploading ? "上傳中..." : "上傳影片"}
+        {isUploading ? "📤 上傳中..." : "🚀 上傳影片"}
       </RippleButton>
 
       {uploaded && (
         <RippleButton className="upload-button" onClick={() => navigate("/analysis")}>
-          前往分析
+          🔍 前往分析
         </RippleButton>
       )}
 
