@@ -10,35 +10,29 @@ const AnalysisPage = () => {
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    // 取得用戶 ID
-    const storedUserId = localStorage.getItem("user_id");
-    if (!storedUserId) {
-      alert("❌ 請先登入！");
-      window.location.href = "/login"; // 直接導回登入頁
-      return;
-    }
-    setUserId(storedUserId);
-
-    // 🚀 向後端請求用戶的影片分析結果
-    const fetchAnalysisResults = async () => {
+    const fetchVideos = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/user/videos?user_id=${storedUserId}`);
+        const userId = encodeURIComponent(localStorage.getItem("user_id"));
+        const response = await fetch(`${API_BASE_URL}/user/videos?user_id=${userId}`);
+  
         const data = await response.json();
-
-        if (!response.ok) throw new Error(data.detail || "無法取得影片分析結果");
-
-        setAnalysisResults(data); // 設定結果
+        console.log("🎬 取得影片列表:", data); // 🔥 Debug: 確認 API 回傳
+  
+        // ✅ 確保 `videos` 是陣列，避免 `.map` 錯誤
+        if (!Array.isArray(data.videos)) {
+          throw new Error("影片列表格式錯誤！");
+        }
+  
+        setAnalysisResults(data.videos);
       } catch (error) {
-        console.error("❌ 錯誤：", error);
-        alert(error.message);
-      } finally {
-        setLoading(false);
+        console.error("❌ 取得影片失敗:", error);
+        setAnalysisResults([]); // 🔥 失敗時，確保是空陣列，避免 `.map` 錯誤
       }
     };
-
-    fetchAnalysisResults();
+  
+    fetchVideos();
   }, []);
-
+  
   // 🚀 重新分析影片（呼叫 `/videos/cut` API）
   const handleReanalyze = async (video) => {
     if (!userId) return;
