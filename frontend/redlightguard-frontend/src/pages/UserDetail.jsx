@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import API_BASE_URL from "../config"; // ✅ 統一 API 設定
+import API_BASE_URL from "../config"; // ✅ 統一改為預設匯入
 import "../styles/UserDetail.css";
 
 const UserDetail = () => {
@@ -13,52 +13,42 @@ const UserDetail = () => {
   const [userVideos, setUserVideos] = useState([]);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-          alert("❌ 請先登入！");
-          navigate("/login");
-          return;
+    console.log("正在載入用戶資料...");
+
+    // 🚀 取得用戶資料
+    fetch(`${API_BASE_URL}/users/${userId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`❌ 無法獲取用戶資料 (錯誤碼 ${response.status})`);
         }
+        return response.json();
+      })
+      .then((data) => {
+        // 依照後端實際回傳格式調整
+        setUserData(data);
+        setOriginalUserData(data);
+      })
+      .catch((error) => console.error(error));
 
-        // 🚀 從後端獲取用戶資料
-        const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error("❌ 無法獲取用戶資料");
-        const data = await response.json();
-
-        setUserData(data.data); // 確保正確解構
-        setOriginalUserData(data.data);
-      } catch (error) {
-        console.error(error);
-        alert(error.message);
-      }
-    };
-
-    const fetchUserVideos = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-
-        // 🚀 從後端獲取該用戶上傳的影片
-        const response = await fetch(`${API_BASE_URL}/admin/user/${userId}/videos`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error("❌ 無法獲取用戶影片");
-        const data = await response.json();
-
-        setUserVideos(data.data || []);
-      } catch (error) {
-        console.error("❌ 無法獲取影片資料:", error);
-      }
-    };
-
-    fetchUserData();
-    fetchUserVideos();
-  }, [userId, navigate]);
+    // 🎥 取得該用戶上傳的影片
+    // （假設依舊是 GET /videos，前端過濾）
+    fetch(`${API_BASE_URL}/videos`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`❌ 無法獲取影片資料 (錯誤碼 ${res.status})`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.data && data.data.data) {
+          const videos = data.data.data.filter((video) => video.user_id === userId);
+          setUserVideos(videos);
+        } else {
+          console.warn("⚠️ 影片資料格式與預期不同", data);
+        }
+      })
+      .catch((error) => console.error("❌ 無法獲取影片資料:", error));
+  }, [userId]);
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -76,23 +66,27 @@ const UserDetail = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(`${API_BASE_URL}/admin/users/${userData.id}`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userData.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // 依實際後端需求欄位進行更新
+          account: userData.account,
           username: userData.username,
           email: userData.email,
+          password: userData.password,
+          extra1: userData.extra1,
+          extra2: userData.extra2,
+          extra3: userData.extra3,
         }),
       });
 
-      if (!response.ok) throw new Error("❌ 更新失敗，請檢查資料或權限！");
+      if (!response.ok) {
+        throw new Error("❌ 更新失敗，請檢查資料或權限！");
+      }
 
       const updatedUser = await response.json();
+      // 依實際回傳格式存放
       setUserData(updatedUser.data);
       setOriginalUserData(updatedUser.data);
 
@@ -143,8 +137,25 @@ const UserDetail = () => {
         </div>
 
         <div className="user-detail-row">
+          <label className="user-detail-label">密碼</label>
+          <input
+            className="user-detail-input"
+            type="password"
+            name="password"
+            value={userData.password || ""}
+            onChange={handleChange}
+            disabled={!isEditing}
+          />
+        </div>
+
+        <div className="user-detail-row">
           <label className="user-detail-label">註冊日期（不可修改）</label>
-          <input className="user-detail-input" type="text" value={userData.created_at || ""} disabled />
+          <input
+            className="user-detail-input"
+            type="text"
+            value={userData.created_at || ""}
+            disabled
+          />
         </div>
 
         <div className="user-detail-buttons">
@@ -162,11 +173,19 @@ const UserDetail = () => {
               </button>
             </>
           ) : (
-            <button type="button" className="user-detail-button user-detail-edit" onClick={handleEdit}>
+            <button
+              type="button"
+              className="user-detail-button user-detail-edit"
+              onClick={handleEdit}
+            >
               編輯
             </button>
           )}
-          <button type="button" className="user-detail-button user-detail-back" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="user-detail-button user-detail-back"
+            onClick={() => navigate(-1)}
+          >
             返回
           </button>
         </div>
