@@ -197,3 +197,15 @@ def get_user_videos(user_id: str):
 
 # ✅ 11. 掛載 `/videos/cut`（影片裁剪 API）
 app.mount("/videos", cut_video_app)
+
+# ❌ 現在缺少用戶清單 API，需要補上：
+@app.get("/admin/users")
+async def get_all_users():
+    users = [{"id": 1, "username": "Zhaozhao", "email": "zhaozhao@example.com"}]  # 模擬資料
+    return {"data": users}
+
+# ❌ 現在缺少所有影片 API，需要補上：
+@app.get("/admin/videos")
+async def get_all_videos():
+    videos = [{"id": 1, "filename": "video1.mp4", "user_id": 1, "status": "Pending"}]  # 模擬資料
+    return {"data": videos}
