@@ -23,15 +23,15 @@ const UserDetail = () => {
         }
 
         // 🚀 從後端獲取用戶資料
-        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) throw new Error("❌ 無法獲取用戶資料");
         const data = await response.json();
 
-        setUserData(data);
-        setOriginalUserData(data);
+        setUserData(data.data); // 確保正確解構
+        setOriginalUserData(data.data);
       } catch (error) {
         console.error(error);
         alert(error.message);
@@ -43,7 +43,7 @@ const UserDetail = () => {
         const token = localStorage.getItem("access_token");
 
         // 🚀 從後端獲取該用戶上傳的影片
-        const response = await fetch(`${API_BASE_URL}/user/${userId}/videos`, {
+        const response = await fetch(`${API_BASE_URL}/admin/user/${userId}/videos`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -78,7 +78,7 @@ const UserDetail = () => {
     try {
       const token = localStorage.getItem("access_token");
 
-      const response = await fetch(`${API_BASE_URL}/users/${userData.id}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${userData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -93,8 +93,8 @@ const UserDetail = () => {
       if (!response.ok) throw new Error("❌ 更新失敗，請檢查資料或權限！");
 
       const updatedUser = await response.json();
-      setUserData(updatedUser);
-      setOriginalUserData(updatedUser);
+      setUserData(updatedUser.data);
+      setOriginalUserData(updatedUser.data);
 
       setIsEditing(false);
       alert("✅ 更新成功！");

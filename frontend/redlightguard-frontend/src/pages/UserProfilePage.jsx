@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ColorPicker from "../components/ColorPicker";
 import { useNavigate } from "react-router-dom";
 import "../styles/UserProfilePage.css";
-import API_BASE_URL from "../config"; // ✅ 統一使用
+import API_BASE_URL from "../config"; // ✅ 統一 API 設定
 
 const UserProfilePage = () => {
   const [videos, setVideos] = useState([]);
@@ -25,10 +25,8 @@ const UserProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userId = localStorage.getItem("user_id");
         const token = localStorage.getItem("access_token");
-
-        if (!userId || !token) {
+        if (!token) {
           alert("❌ 請先登入！");
           navigate("/login");
           return;
@@ -41,9 +39,10 @@ const UserProfilePage = () => {
 
         if (!profileResponse.ok) throw new Error("❌ 無法獲取用戶資訊");
         const profileData = await profileResponse.json();
-        setUserInfo(profileData);
-        setNewUsername(profileData.username);
-        setNewEmail(profileData.email);
+
+        setUserInfo(profileData.data); // 確保 API 返回的數據正確
+        setNewUsername(profileData.data.username);
+        setNewEmail(profileData.data.email);
 
         // 🚀 從後端拉取用戶影片
         const videosResponse = await fetch(`${API_BASE_URL}/user/videos`, {
@@ -52,7 +51,7 @@ const UserProfilePage = () => {
 
         if (!videosResponse.ok) throw new Error("❌ 無法獲取影片列表");
         const videosData = await videosResponse.json();
-        setVideos(videosData);
+        setVideos(videosData.data || []);
       } catch (error) {
         alert(error.message);
       }
@@ -66,7 +65,7 @@ const UserProfilePage = () => {
     try {
       const token = localStorage.getItem("access_token");
 
-      const response = await fetch(`${API_BASE_URL}/user`, {
+      const response = await fetch(`${API_BASE_URL}/user/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +77,7 @@ const UserProfilePage = () => {
       if (!response.ok) throw new Error("❌ 更新失敗，請稍後再試");
 
       const data = await response.json();
-      setUserInfo(data);
+      setUserInfo(data.data);
       setIsEditing(false);
       alert("✅ 用戶資訊已更新！");
     } catch (error) {
@@ -123,7 +122,7 @@ const UserProfilePage = () => {
       try {
         const token = localStorage.getItem("access_token");
 
-        const response = await fetch(`${API_BASE_URL}/video/${videoId}`, {
+        const response = await fetch(`${API_BASE_URL}/user/videos/${videoId}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         });
