@@ -7,12 +7,13 @@ import API_BASE_URL from "../config"; // ✅ 統一使用
 const UserProfilePage = () => {
   const [videos, setVideos] = useState([]);
   const [userInfo, setUserInfo] = useState({
-    username: "",
-    email: "",
+    username: "Zhaozhao",
+    email: "zhaozhao@example.com",
   });
 
-  const [newUsername, setNewUsername] = useState("");
-  const [newEmail, setNewEmail] = useState("");
+  // 編輯時的暫存
+  const [newUsername, setNewUsername] = useState(userInfo.username);
+  const [newEmail, setNewEmail] = useState(userInfo.email);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -23,67 +24,52 @@ const UserProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userId = localStorage.getItem("user_id");
-        const token = localStorage.getItem("access_token");
-
-        if (!userId || !token) {
-          alert("❌ 請先登入！");
-          navigate("/login");
-          return;
-        }
-
-        // 🚀 從後端拉取用戶資訊
-        const profileResponse = await fetch(`${API_BASE_URL}/user/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!profileResponse.ok) throw new Error("❌ 無法獲取用戶資訊");
-        const profileData = await profileResponse.json();
-        setUserInfo(profileData);
-        setNewUsername(profileData.username);
-        setNewEmail(profileData.email);
-
-        // 🚀 從後端拉取用戶影片
-        const videosResponse = await fetch(`${API_BASE_URL}/user/videos`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!videosResponse.ok) throw new Error("❌ 無法獲取影片列表");
-        const videosData = await videosResponse.json();
-        setVideos(videosData);
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    fetchUserData();
-  }, [navigate]);
+    // 🚀 TODO: 可改成從後端拉取該用戶資訊 & 上傳的影片
+    // fetch(`${API_BASE_URL}/user/profile`) ...
+    // setUserInfo(...)
+    // fetch(`${API_BASE_URL}/user/videos`) ...
+    // setVideos(...)
+    // 這裡先保留原本的假資料
+    setVideos([
+      {
+        id: 1,
+        title: "原始影片",
+        url: "https://example.com/original.mp4",
+        isOriginal: true,
+      },
+      {
+        id: 2,
+        title: "裁切影片 1",
+        url: "https://example.com/cut1.mp4",
+        isOriginal: false,
+      },
+    ]);
+  }, []);
 
   // 🚀 更新帳號資訊
   const handleSaveUserInfo = async () => {
-    try {
-      const token = localStorage.getItem("access_token");
+    // 假如要呼叫後端 PUT /user
+    // try {
+    //   const response = await fetch(`${API_BASE_URL}/user`, {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ username: newUsername, email: newEmail }),
+    //   });
+    //   if (!response.ok) {
+    //     throw new Error("❌ 更新失敗，請稍後再試");
+    //   }
+    //   // 根據實際回傳格式更新 userInfo
+    //   const data = await response.json();
+    //   setUserInfo(data);
+    //   alert("✅ 用戶資訊已更新！");
+    // } catch (error) {
+    //   alert(error.message);
+    // }
 
-      const response = await fetch(`${API_BASE_URL}/user`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ username: newUsername, email: newEmail }),
-      });
-
-      if (!response.ok) throw new Error("❌ 更新失敗，請稍後再試");
-
-      const data = await response.json();
-      setUserInfo(data);
-      setIsEditing(false);
-      alert("✅ 用戶資訊已更新！");
-    } catch (error) {
-      alert(error.message);
-    }
+    // 目前先保留前端操作
+    setUserInfo({ username: newUsername, email: newEmail });
+    setIsEditing(false);
+    alert("✅ 用戶資訊已更新！（前端模擬）");
   };
 
   // 🚀 修改密碼
@@ -93,48 +79,36 @@ const UserProfilePage = () => {
       return;
     }
 
-    try {
-      const token = localStorage.getItem("access_token");
+    // 範例：PUT /user/password
+    // try {
+    //   const response = await fetch(`${API_BASE_URL}/user/password`, {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ oldPassword, newPassword }),
+    //   });
+    //   if (!response.ok) {
+    //     throw new Error("❌ 密碼更新失敗");
+    //   }
+    //   alert("✅ 密碼已更新！");
+    // } catch (err) {
+    //   alert(err.message);
+    // }
 
-      const response = await fetch(`${API_BASE_URL}/user/password`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-
-      if (!response.ok) throw new Error("❌ 密碼更新失敗");
-
-      setOldPassword("");
-      setNewPassword("");
-      setIsChangingPassword(false);
-      alert("✅ 密碼已更新！");
-    } catch (error) {
-      alert(error.message);
-    }
+    // 先保留前端模擬
+    setOldPassword("");
+    setNewPassword("");
+    setIsChangingPassword(false);
+    alert("✅ 密碼已更新！（前端模擬）");
   };
 
   // 🚀 刪除影片（新增二次確認）
-  const handleDeleteVideo = async (videoId) => {
+  const handleDeleteVideo = (videoId) => {
     const confirmDelete = window.confirm("⚠️ 確定要刪除這個影片嗎？此操作無法恢復！");
     if (confirmDelete) {
-      try {
-        const token = localStorage.getItem("access_token");
-
-        const response = await fetch(`${API_BASE_URL}/video/${videoId}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error("❌ 刪除失敗，請稍後再試");
-
-        setVideos(videos.filter((video) => video.id !== videoId));
-        alert("🗑️ 影片已刪除！");
-      } catch (error) {
-        alert(error.message);
-      }
+      // 也可呼叫 DELETE /video/:video_id
+      // 成功後再 filter 本地陣列
+      setVideos(videos.filter((video) => video.id !== videoId));
+      alert("🗑️ 影片已刪除！");
     }
   };
 
@@ -142,8 +116,10 @@ const UserProfilePage = () => {
     <div className="user-profile-container">
       <ColorPicker />
 
+      {/* 🏷️ **標題** */}
       <h2 className="page-title">📌 用戶中心</h2>
 
+      {/* 👤 **用戶資訊** */}
       <div className="account-info-card">
         <h3>👤 用戶資訊</h3>
         {isEditing ? (
@@ -190,6 +166,7 @@ const UserProfilePage = () => {
           </>
         )}
 
+        {/* 🔒 **修改密碼區塊** */}
         {isChangingPassword && (
           <>
             <input
@@ -218,6 +195,7 @@ const UserProfilePage = () => {
         )}
       </div>
 
+      {/* 🎥 **影片列表** */}
       <h3>📂 我的影片</h3>
       {videos.length === 0 ? (
         <p className="no-videos">目前沒有上傳的影片 📭</p>
@@ -233,6 +211,11 @@ const UserProfilePage = () => {
                 <button className="btn action-btn" onClick={() => window.open(video.url)}>
                   📥 下載
                 </button>
+                {video.isOriginal && (
+                  <button className="btn action-btn" onClick={() => alert("🚀 重新分析中...")}>
+                    🔄 重新分析
+                  </button>
+                )}
                 <button className="btn delete-btn" onClick={() => handleDeleteVideo(video.id)}>
                   🗑️ 刪除
                 </button>

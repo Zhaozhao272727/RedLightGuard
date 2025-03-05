@@ -11,12 +11,12 @@ const StatusTag = ({ status }) => {
     "Red Light Violation": "red",
     "Pending": "yellow",
   };
-  return <span className={`status-label ${statusColors[status] || "gray"}`}>{status}</span>;
+  return <span className={`status-label ${statusColors[status]}`}>{status}</span>;
 };
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]); // 用戶列表
+  const [users, setUsers] = useState([]);   // 用戶列表
   const [uploads, setUploads] = useState([]); // 影片列表
 
   const [selectedUsers, setSelectedUsers] = useState(new Set());
@@ -31,38 +31,45 @@ const AdminPage = () => {
     document.documentElement.style.setProperty("--hover-glow-color", themeColor);
   }, [themeColor]);
 
+  // 🚀 從 API 獲取用戶列表
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-          alert("❌ 請先登入！");
-          navigate("/login");
-          return;
+    fetch(`${API_BASE_URL}/users`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`❌ 無法獲取用戶清單 (錯誤碼 ${response.status})`);
         }
+        return response.json();
+      })
+      .then((data) => {
+        // 如果後端回傳結構類似 { data: { data: [...] } }
+        // 可依實際情況調整
+        if (data.data && data.data.data) {
+          setUsers(data.data.data);
+        } else {
+          console.warn("⚠️ 用戶清單格式與預期不同", data);
+        }
+      })
+      .catch((error) => console.error("❌ 無法獲取用戶清單:", error));
+  }, []);
 
-        // 🚀 拉取用戶列表
-        const usersResponse = await fetch(`${API_BASE_URL}/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!usersResponse.ok) throw new Error("❌ 無法獲取用戶清單");
-        const usersData = await usersResponse.json();
-        setUsers(usersData.data || []);
-
-        // 🚀 拉取影片列表
-        const videosResponse = await fetch(`${API_BASE_URL}/videos`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!videosResponse.ok) throw new Error("❌ 無法獲取影片列表");
-        const videosData = await videosResponse.json();
-        setUploads(videosData.data || []);
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    fetchData();
-  }, [navigate]);
+  // 🚀 從 API 獲取影片列表
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/videos`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`❌ 無法獲取影片列表 (錯誤碼 ${response.status})`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.data && data.data.data) {
+          setUploads(data.data.data);
+        } else {
+          console.warn("⚠️ 影片列表格式與預期不同", data);
+        }
+      })
+      .catch((error) => console.error("❌ 無法獲取影片列表:", error));
+  }, []);
 
   // 🔍 過濾影片
   const filteredUploads = uploads.filter((upload) => {
@@ -78,55 +85,27 @@ const AdminPage = () => {
     return userDate >= new Date(startDate) && userDate <= new Date(endDate);
   });
 
-  // 🗑️ 刪除用戶
-  const deleteSelectedUsers = async () => {
+  // 🗑️ 刪除選取的用戶（前端暫時移除，可自行串接 DELETE /users/:id）
+  const deleteSelectedUsers = () => {
     if (selectedUsers.size === 0) {
       alert("請先選取用戶！");
       return;
     }
-    if (!window.confirm(`確定刪除 ${selectedUsers.size} 位用戶？`)) return;
-
-    try {
-      const token = localStorage.getItem("access_token");
-      await Promise.all(
-        [...selectedUsers].map((userId) =>
-          fetch(`${API_BASE_URL}/users/${userId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        )
-      );
+    if (window.confirm(`確定刪除 ${selectedUsers.size} 位用戶？`)) {
       setUsers(users.filter((user) => !selectedUsers.has(user.id)));
       setSelectedUsers(new Set());
-      alert("✅ 已刪除選取用戶！");
-    } catch (error) {
-      alert("❌ 刪除失敗，請稍後再試");
     }
   };
 
-  // 🗑️ 刪除影片
-  const deleteSelectedUploads = async () => {
+  // 🗑️ 刪除選取的影片（前端暫時移除，可自行串接 DELETE /videos/:id）
+  const deleteSelectedUploads = () => {
     if (selectedUploads.size === 0) {
       alert("請先選取影片！");
       return;
     }
-    if (!window.confirm(`確定刪除 ${selectedUploads.size} 筆影片紀錄？`)) return;
-
-    try {
-      const token = localStorage.getItem("access_token");
-      await Promise.all(
-        [...selectedUploads].map((videoId) =>
-          fetch(`${API_BASE_URL}/videos/${videoId}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        )
-      );
+    if (window.confirm(`確定刪除 ${selectedUploads.size} 筆影片紀錄？`)) {
       setUploads(uploads.filter((upload) => !selectedUploads.has(upload.id)));
       setSelectedUploads(new Set());
-      alert("✅ 已刪除選取影片！");
-    } catch (error) {
-      alert("❌ 刪除失敗，請稍後再試");
     }
   };
 
@@ -138,9 +117,17 @@ const AdminPage = () => {
       {/* 📅 日期篩選區 */}
       <div className="filter-container">
         <label>篩選日期區間：</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
         <span> - </span>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
       </div>
 
       {/* 👥 用戶區塊 */}
@@ -176,7 +163,9 @@ const AdminPage = () => {
         <h2>📤 Uploads ({filteredUploads.length})</h2>
         <ul className="scrollable-list">
           {filteredUploads.map((upload) => {
-            const uploader = users.find((user) => user.id.trim() === upload.user_id.trim());
+            const uploader = users.find(
+              (user) => user.id.trim() === upload.user_id.trim()
+            );
             return (
               <li key={upload.id} className="admin-item">
                 <input
@@ -185,7 +174,9 @@ const AdminPage = () => {
                   onChange={() =>
                     setSelectedUploads((prev) => {
                       const newSet = new Set(prev);
-                      newSet.has(upload.id) ? newSet.delete(upload.id) : newSet.add(upload.id);
+                      newSet.has(upload.id)
+                        ? newSet.delete(upload.id)
+                        : newSet.add(upload.id);
                       return newSet;
                     })
                   }

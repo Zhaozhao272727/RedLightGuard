@@ -1,252 +1,192 @@
-import React, { useEffect, useState } from "react";
-import ColorPicker from "../components/ColorPicker";
-import { useNavigate } from "react-router-dom";
-import "../styles/UserProfilePage.css";
-import API_BASE_URL from "../config"; // ✅ 統一使用
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "../config"; // ✅ 統一 API 設定
+import "../styles/UserDetail.css";
 
-const UserProfilePage = () => {
-  const [videos, setVideos] = useState([]);
-  const [userInfo, setUserInfo] = useState({
-    username: "",
-    email: "",
-  });
-
-  const [newUsername, setNewUsername] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+const UserDetail = () => {
+  const navigate = useNavigate();
+  const { userId } = useParams(); // ✅ 確保 `useParams()` 取得的 key 與路由一致
 
   const [isEditing, setIsEditing] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-
-  const navigate = useNavigate();
+  const [userData, setUserData] = useState(null);
+  const [originalUserData, setOriginalUserData] = useState(null);
+  const [userVideos, setUserVideos] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userId = localStorage.getItem("user_id");
         const token = localStorage.getItem("access_token");
-
-        if (!userId || !token) {
+        if (!token) {
           alert("❌ 請先登入！");
           navigate("/login");
           return;
         }
 
-        // 🚀 從後端拉取用戶資訊
-        const profileResponse = await fetch(`${API_BASE_URL}/user/profile`, {
+        // 🚀 從後端獲取用戶資料
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!profileResponse.ok) throw new Error("❌ 無法獲取用戶資訊");
-        const profileData = await profileResponse.json();
-        setUserInfo(profileData);
-        setNewUsername(profileData.username);
-        setNewEmail(profileData.email);
+        if (!response.ok) throw new Error("❌ 無法獲取用戶資料");
+        const data = await response.json();
 
-        // 🚀 從後端拉取用戶影片
-        const videosResponse = await fetch(`${API_BASE_URL}/user/videos`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!videosResponse.ok) throw new Error("❌ 無法獲取影片列表");
-        const videosData = await videosResponse.json();
-        setVideos(videosData);
+        setUserData(data);
+        setOriginalUserData(data);
       } catch (error) {
+        console.error(error);
         alert(error.message);
       }
     };
 
-    fetchUserData();
-  }, [navigate]);
-
-  // 🚀 更新帳號資訊
-  const handleSaveUserInfo = async () => {
-    try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(`${API_BASE_URL}/user`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ username: newUsername, email: newEmail }),
-      });
-
-      if (!response.ok) throw new Error("❌ 更新失敗，請稍後再試");
-
-      const data = await response.json();
-      setUserInfo(data);
-      setIsEditing(false);
-      alert("✅ 用戶資訊已更新！");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  // 🚀 修改密碼
-  const handleChangePassword = async () => {
-    if (!oldPassword || !newPassword) {
-      alert("❌ 請輸入舊密碼和新密碼！");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("access_token");
-
-      const response = await fetch(`${API_BASE_URL}/user/password`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-
-      if (!response.ok) throw new Error("❌ 密碼更新失敗");
-
-      setOldPassword("");
-      setNewPassword("");
-      setIsChangingPassword(false);
-      alert("✅ 密碼已更新！");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  // 🚀 刪除影片（新增二次確認）
-  const handleDeleteVideo = async (videoId) => {
-    const confirmDelete = window.confirm("⚠️ 確定要刪除這個影片嗎？此操作無法恢復！");
-    if (confirmDelete) {
+    const fetchUserVideos = async () => {
       try {
         const token = localStorage.getItem("access_token");
 
-        const response = await fetch(`${API_BASE_URL}/video/${videoId}`, {
-          method: "DELETE",
+        // 🚀 從後端獲取該用戶上傳的影片
+        const response = await fetch(`${API_BASE_URL}/user/${userId}/videos`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) throw new Error("❌ 刪除失敗，請稍後再試");
+        if (!response.ok) throw new Error("❌ 無法獲取用戶影片");
+        const data = await response.json();
 
-        setVideos(videos.filter((video) => video.id !== videoId));
-        alert("🗑️ 影片已刪除！");
+        setUserVideos(data.data || []);
       } catch (error) {
-        alert(error.message);
+        console.error("❌ 無法獲取影片資料:", error);
       }
+    };
+
+    fetchUserData();
+    fetchUserVideos();
+  }, [userId, navigate]);
+
+  const handleChange = (e) => {
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setUserData(originalUserData);
+    setIsEditing(false);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("access_token");
+
+      const response = await fetch(`${API_BASE_URL}/users/${userData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email,
+        }),
+      });
+
+      if (!response.ok) throw new Error("❌ 更新失敗，請檢查資料或權限！");
+
+      const updatedUser = await response.json();
+      setUserData(updatedUser);
+      setOriginalUserData(updatedUser);
+
+      setIsEditing(false);
+      alert("✅ 更新成功！");
+    } catch (error) {
+      console.error("❌ 更新失敗", error);
+      alert("❌ 更新失敗，請重試！");
     }
   };
 
+  if (!userData) return <p>⏳ 載入中...</p>;
+
   return (
-    <div className="user-profile-container">
-      <ColorPicker />
+    <div className="user-detail-container">
+      <h2 className="user-detail-title">
+        <i className="user-icon">👤</i> 用戶詳情 - <span>{userData.username}</span>
+      </h2>
 
-      <h2 className="page-title">📌 用戶中心</h2>
-
-      <div className="account-info-card">
-        <h3>👤 用戶資訊</h3>
-        {isEditing ? (
-          <>
-            <input
-              type="text"
-              className="input-field"
-              placeholder="新用戶名"
-              value={newUsername}
-              onChange={(e) => setNewUsername(e.target.value)}
-            />
-            <input
-              type="email"
-              className="input-field"
-              placeholder="新電子郵件"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-            />
-            <div className="user-buttons">
-              <button className="btn save-btn" onClick={handleSaveUserInfo}>
-                💾 儲存
-              </button>
-              <button className="btn cancel-btn" onClick={() => setIsEditing(false)}>
-                ❌ 取消
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <p>
-              <strong>用戶名：</strong> {userInfo.username}
-            </p>
-            <p>
-              <strong>Email：</strong> {userInfo.email}
-            </p>
-            <div className="user-buttons">
-              <button className="btn edit-btn" onClick={() => setIsEditing(true)}>
-                ✏️ 編輯
-              </button>
-              <button className="btn password-btn" onClick={() => setIsChangingPassword(true)}>
-                🔑 修改密碼
-              </button>
-            </div>
-          </>
-        )}
-
-        {isChangingPassword && (
-          <>
-            <input
-              type="password"
-              className="input-field"
-              placeholder="舊密碼"
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-            />
-            <input
-              type="password"
-              className="input-field"
-              placeholder="新密碼"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <div className="user-buttons">
-              <button className="btn save-btn" onClick={handleChangePassword}>
-                🔑 修改密碼
-              </button>
-              <button className="btn cancel-btn" onClick={() => setIsChangingPassword(false)}>
-                ❌ 取消
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      <h3>📂 我的影片</h3>
-      {videos.length === 0 ? (
-        <p className="no-videos">目前沒有上傳的影片 📭</p>
-      ) : (
-        <div className="video-list">
-          {videos.map((video) => (
-            <div key={video.id} className="video-card">
-              <h3>{video.title}</h3>
-              <video controls className="video-player">
-                <source src={video.url} type="video/mp4" />
-              </video>
-              <div className="video-buttons">
-                <button className="btn action-btn" onClick={() => window.open(video.url)}>
-                  📥 下載
-                </button>
-                <button className="btn delete-btn" onClick={() => handleDeleteVideo(video.id)}>
-                  🗑️ 刪除
-                </button>
-              </div>
-            </div>
-          ))}
+      <form className="user-detail-form" onSubmit={handleSave}>
+        <div className="user-detail-row">
+          <label className="user-detail-label">用戶 ID（不可修改）</label>
+          <input className="user-detail-input" type="text" value={userData.id} disabled />
         </div>
-      )}
 
-      <button className="btn back-btn" onClick={() => navigate("/upload")}>
-        🔙 返回上傳
-      </button>
+        <div className="user-detail-row">
+          <label className="user-detail-label">帳號</label>
+          <input
+            className="user-detail-input"
+            type="text"
+            name="username"
+            value={userData.username || ""}
+            onChange={handleChange}
+            disabled={!isEditing}
+          />
+        </div>
+
+        <div className="user-detail-row">
+          <label className="user-detail-label">Email</label>
+          <input
+            className="user-detail-input"
+            type="email"
+            name="email"
+            value={userData.email || ""}
+            onChange={handleChange}
+            disabled={!isEditing}
+          />
+        </div>
+
+        <div className="user-detail-row">
+          <label className="user-detail-label">註冊日期（不可修改）</label>
+          <input className="user-detail-input" type="text" value={userData.created_at || ""} disabled />
+        </div>
+
+        <div className="user-detail-buttons">
+          {isEditing ? (
+            <>
+              <button type="submit" className="user-detail-button user-detail-save">
+                儲存
+              </button>
+              <button
+                type="button"
+                className="user-detail-button user-detail-cancel"
+                onClick={handleCancel}
+              >
+                取消
+              </button>
+            </>
+          ) : (
+            <button type="button" className="user-detail-button user-detail-edit" onClick={handleEdit}>
+              編輯
+            </button>
+          )}
+          <button type="button" className="user-detail-button user-detail-back" onClick={() => navigate(-1)}>
+            返回
+          </button>
+        </div>
+      </form>
+
+      {/* 🎥 顯示該用戶上傳的影片 */}
+      <h3>📤 上傳的影片</h3>
+      <ul>
+        {userVideos.length > 0 ? (
+          userVideos.map((video) => (
+            <li key={video.id}>
+              🎥 {video.filename} - <strong>{video.status}</strong>
+            </li>
+          ))
+        ) : (
+          <p>這個用戶還沒有上傳影片。</p>
+        )}
+      </ul>
     </div>
   );
 };
 
-export default UserProfilePage;
+export default UserDetail;
